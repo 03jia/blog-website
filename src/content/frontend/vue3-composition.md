@@ -1,12 +1,3 @@
----
-title: Vue 3 组合式 API 最佳实践
-date: 2024-01-25
-category: 前端开发
-tags: ['Vue', '前端', '最佳实践']
-description: 深入探讨 Vue 3 组合式 API 的使用技巧和最佳实践...
-readTime: 12 min
----
-
 # Vue 3 组合式 API 最佳实践
 
 ## 引言

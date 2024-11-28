@@ -24,7 +24,7 @@ const startReading = () => {
       
       <!-- 副标题 -->
       <p class="text-xl md:text-2xl text-gray-300 mb-12 text-center">
-        技术爱好者的个人笔记、记!
+        一位编程爱好者的个人笔记
       </p>
 
       <!-- 导航按钮 -->

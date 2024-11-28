@@ -20,7 +20,6 @@ export async function loadArticleContent(id: number): Promise<string> {
 
     // 获取文章路径
     const [path] = article
-    console.log('Article path:', path)
     
     // 使用 fetch 加载 Markdown 文件
     const response = await fetch(`/src/content/${path}.md`)
@@ -29,11 +28,9 @@ export async function loadArticleContent(id: number): Promise<string> {
     }
     
     const content = await response.text()
-    console.log('Loaded content:', content)
     
     // 将 Markdown 转换为 HTML
     const html = md.render(content)
-    console.log('Rendered HTML:', html)
     
     return html
   } catch (error) {
