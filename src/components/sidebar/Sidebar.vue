@@ -2,14 +2,16 @@
 import ProfileCard from './ProfileCard.vue'
 import Announcement from './Announcement.vue'
 import TagCloud from './TagCloud.vue'
-import PopularPosts from './PopularPosts.vue'
+import CategoryList from './CategoryList.vue'
 </script>
 
 <template>
-  <aside class="space-y-8">
-    <ProfileCard />
-    <Announcement />
-    <TagCloud />
-    <PopularPosts />
+  <aside class="sticky top-24">
+    <div class="space-y-6 transition-all duration-300">
+      <ProfileCard />
+      <Announcement />
+      <CategoryList />
+      <TagCloud />
+    </div>
   </aside>
-</template> 
+</template>

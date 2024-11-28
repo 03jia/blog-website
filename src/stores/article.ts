@@ -1,19 +1,17 @@
 import { defineStore } from 'pinia'
-import { getAllArticles } from '@/config/articles-meta'
+import { ref } from 'vue'
 import type { Article } from '@/types/article'
+import { getAllArticles } from '@/config/articles-meta'
 
-export const useArticleStore = defineStore('article', {
-  state: () => ({
-    articles: getAllArticles(),
-    currentArticle: null as Article | null
-  }),
+export const useArticleStore = defineStore('article', () => {
+  const articles = ref<Article[]>(getAllArticles())
   
-  actions: {
-    async loadArticle(id: number) {
-      const article = this.articles.find(a => a.id === id)
-      if (article) {
-        this.currentArticle = article
-      }
-    }
+  const toggleTag = (tag: string) => {
+    // 标签筛选逻辑
+  }
+  
+  return {
+    articles,
+    toggleTag
   }
 }) 
