@@ -4,6 +4,8 @@ import { useRoute } from 'vue-router'
 import { useArticleStore } from '@/stores/article'
 import { loadArticleContent } from '@/utils/content-loader'
 import NavBar from '../components/layout/NavBar.vue'
+import ArticleContent from '../components/article/ArticleContent.vue'
+import TableOfContents from '../components/article/TableOfContents.vue'
 import bgImage from '../assets/images/bg.jpg'
 
 const route = useRoute()
@@ -25,49 +27,38 @@ onMounted(async () => {
 
 <template>
   <div 
-    class="min-h-screen bg-fixed bg-cover bg-center relative"
+    class="min-h-screen bg-fixed bg-cover bg-center relative flex flex-col"
     :style="{ backgroundImage: `url(${bgImage})` }"
   >
     <!-- 背景遮罩 -->
     <div class="fixed inset-0 bg-gradient-overlay"></div>
     
-    <!-- 导航栏 -->
     <NavBar />
     
-    <!-- 内容区域 - 使用绝对定位并设置具体的 top 值 -->
-    <main class="absolute inset-x-0 top-16 bottom-0 overflow-y-auto z-10">
-      <div class="container mx-auto px-4 py-8">
-        <article v-if="article" class="bg-white/10 backdrop-blur-sm rounded-lg p-8 mb-8">
-          <!-- 文章头部信息 -->
-          <header class="mb-8">
-            <h1 class="text-3xl font-bold text-white mb-4">
-              {{ article.title }}
-            </h1>
-            <div class="flex items-center justify-between text-gray-400">
-              <div class="flex items-center space-x-4">
-                <time :datetime="article.date">{{ article.date }}</time>
-                <span>{{ article.readTime }}</span>
-              </div>
-              <div class="flex flex-wrap gap-2">
-                <span 
-                  v-for="tag in article.tags" 
-                  :key="tag"
-                  class="px-2 py-1 text-sm rounded-full bg-blue-500/20 text-blue-400"
-                >
-                  {{ tag }}
-                </span>
-              </div>
+    <!-- 内容区域 -->
+    <main class="flex-1 relative z-10 overflow-y-auto pt-20">
+      <div class="container max-w-7xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-[minmax(0,1fr)_280px] gap-6">
+          <!-- 左侧文章内容 -->
+          <div class="min-w-0">
+            <ArticleContent
+              v-if="article"
+              :article="article"
+              :content="content"
+            />
+            <div v-else class="text-center text-gray-400">
+              文章不存在
             </div>
-          </header>
+          </div>
 
-          <!-- 文章内容 -->
-          <div 
-            class="prose prose-invert prose-lg max-w-none"
-            v-html="content"
-          ></div>
-        </article>
-        <div v-else class="text-center text-gray-400">
-          文章不存在
+          <!-- 右侧目录 -->
+          <div class="relative">
+            <div class="fixed w-[280px]">
+              <TableOfContents
+                v-if="article && content"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </main>
@@ -91,55 +82,5 @@ main::-webkit-scrollbar-track {
 
 main::-webkit-scrollbar-thumb {
   @apply bg-white/10 rounded-full hover:bg-white/20;
-}
-
-/* 文章内容样式 */
-:deep(.prose) {
-  @apply text-gray-300;
-}
-
-:deep(.prose h1),
-:deep(.prose h2),
-:deep(.prose h3),
-:deep(.prose h4),
-:deep(.prose h5),
-:deep(.prose h6) {
-  @apply text-white mt-8 mb-4;
-}
-
-:deep(.prose a) {
-  @apply text-blue-400 hover:text-blue-300;
-}
-
-:deep(.prose strong) {
-  @apply text-white;
-}
-
-:deep(.prose ul) {
-  @apply list-disc list-inside my-4;
-}
-
-:deep(.prose ol) {
-  @apply list-decimal list-inside my-4;
-}
-
-:deep(.prose li) {
-  @apply my-2;
-}
-
-:deep(.prose img) {
-  @apply rounded-lg shadow-lg mx-auto;
-}
-
-:deep(.prose pre) {
-  @apply bg-gray-800/50 border border-gray-700/50 p-4 rounded-lg my-4;
-}
-
-:deep(.prose code) {
-  @apply bg-gray-800/50 px-1.5 py-0.5 rounded text-blue-300;
-}
-
-:deep(.prose blockquote) {
-  @apply border-l-4 border-blue-500/50 bg-white/5 px-4 py-2 my-4;
 }
 </style> 

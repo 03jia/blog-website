@@ -1,16 +1,3 @@
-# Vue 3 组合式 API 最佳实践
-
-## 引言
-组合式 API 是 Vue 3 中最重要的特性之一，它提供了一种更灵活的方式来组织组件逻辑。本文将深入探讨如何有效地使用组合式 API。
-
-## 核心概念
-
-### 1. setup 函数
-
-setup 函数是组合式 API 的入口点。它在组件创建之前执行，一旦 props 被解析完成。
-
-## 最佳实践
-### 1. 组织代码结构
 ### 1. Git 仓库管理
 
 - **创建仓库**：
@@ -66,7 +53,7 @@ git add *.java
 
 > 示例：将所有 `.java` 文件添加到缓存区。
 
-- ## **查看文件状态**：
+- **查看文件状态**：
 
 ```bash
 git status
@@ -74,7 +61,7 @@ git status
 
 > 示例：查看文件的当前状态，是否有未提交的更改。
 
-- ## **查看文件差异**：
+- **查看文件差异**：
 
 ```bash
 git diff
@@ -88,7 +75,7 @@ git diff --cached
 
 > 示例：查看已经添加到缓存区但未提交的更改。
 
-- ### **提交更改**：
+- **提交更改**：
 
 ```bash
 git commit -m "提交说明"
@@ -148,7 +135,7 @@ git branch
 
 > 示例：查看本地仓库的所有分支。
 
-- #### **创建新分支**：
+- **创建新分支**：
 
 ```bash
 git branch branchname
@@ -276,7 +263,7 @@ git fetch origin
 
 > 示例：从 `origin` 仓库获取更新。
 
-- ## **从远程仓库拉取并合并数据**：
+- **从远程仓库拉取并合并数据**：
 
 ```bash
 git pull origin master
@@ -284,7 +271,7 @@ git pull origin master
 
 > 示例：从 `origin` 仓库的 `master` 分支拉取并合并最新更改。
 
-- ### **推送本地更改到远程仓库**：
+- **推送本地更改到远程仓库**：
 
 ```bash
 git push origin master
@@ -292,7 +279,7 @@ git push origin master
 
 > 示例：将本地 `master` 分支的更改推送到 `origin` 仓库。
 
-- #### **删除远程仓库**：
+- **删除远程仓库**：
 
 ```bash
 git remote rm origin
