@@ -11,6 +11,11 @@ const toc = ref<TocItem[]>([])
 const activeId = ref('')
 const readingProgress = ref(0)
 
+// 生成唯一的锚点ID
+const generateAnchorId = (text: string) => {
+  return `heading-${text.toLowerCase().replace(/\s+/g, '-')}-${Math.random().toString(36).slice(2, 8)}`
+}
+
 // 解析文章内容，生成目录
 const generateToc = () => {
   const article = document.querySelector('.article-content')
@@ -18,16 +23,28 @@ const generateToc = () => {
 
   const headings = article.querySelectorAll('h1, h2, h3')
   toc.value = Array.from(headings).map(heading => {
-    // 确保每个标题都有 id
-    if (!heading.id) {
-      heading.id = heading.textContent?.toLowerCase().replace(/\s+/g, '-') || ''
-    }
+    // 为每个标题生成唯一的锚点ID
+    const id = generateAnchorId(heading.textContent || '')
+    heading.id = id
+    
     return {
-      id: heading.id,
+      id,
       title: heading.textContent || '',
       level: Number(heading.tagName[1])
     }
   })
+}
+
+// 点击目录项滚动到对应位置
+const scrollToHeading = (id: string) => {
+  const heading = document.getElementById(id)
+  if (heading) {
+    const offset = heading.getBoundingClientRect().top + window.scrollY - 100
+    window.scrollTo({
+      top: offset,
+      behavior: 'smooth'
+    })
+  }
 }
 
 // 更新阅读进度和当前位置
@@ -36,35 +53,28 @@ const updateProgress = () => {
   if (!article) return
 
   // 计算阅读进度
-  const totalHeight = article.scrollHeight
+  const totalHeight = (article as HTMLElement).scrollHeight
   const viewportHeight = window.innerHeight
-  const scrolled = window.scrollY + viewportHeight - article.offsetTop
+  const scrolled = window.scrollY + viewportHeight - (article as HTMLElement).offsetTop
   const progress = (scrolled / totalHeight) * 100
   readingProgress.value = Math.min(Math.max(progress, 0), 100)
 
   // 更新当前活动标题
-  const headings = document.querySelectorAll('.article-content h1, .article-content h2, .article-content h3')
-  for (let i = headings.length - 1; i >= 0; i--) {
-    const heading = headings[i]
-    const rect = heading.getBoundingClientRect()
-    if (rect.top <= 100) {
-      activeId.value = heading.id
-      break
-    }
-  }
-}
+  const headings = Array.from(document.querySelectorAll('.article-content h1, .article-content h2, .article-content h3'))
+  const currentHeading = headings
+    .reverse()
+    .find(heading => {
+      const rect = heading.getBoundingClientRect()
+      return rect.top <= 120 && rect.top > -50 // 调整检测范围
+    })
 
-// 点击目录项滚动到对应位置
-const scrollToHeading = (id: string) => {
-  const heading = document.getElementById(id)
-  if (heading) {
-    heading.scrollIntoView({ behavior: 'smooth' })
-    // 补偿导航栏高度
-    window.scrollBy(0, -80)
+  if (currentHeading) {
+    activeId.value = currentHeading.id
   }
 }
 
 onMounted(() => {
+  // 等待内容渲染完成后再生成目录
   setTimeout(() => {
     generateToc()
     updateProgress()
@@ -78,39 +88,41 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="bg-black/30 backdrop-blur-sm rounded-lg">
-    <!-- 目录标题和进度条 -->
-    <div class="p-4 border-b border-gray-700/50">
-      <div class="flex items-center justify-between mb-2">
-        <h3 class="text-lg font-bold text-white">目录</h3>
-        <span class="text-sm text-gray-400">{{ Math.round(readingProgress) }}%</span>
+  <div class="sticky top-8">
+    <div class="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 hover:bg-white/10 transition-all">
+      <!-- 目录标题和进度条 -->
+      <div class="p-4 border-b border-white/10">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-lg font-bold text-white">目录</h3>
+          <span class="text-sm text-gray-400">{{ Math.round(readingProgress) }}%</span>
+        </div>
+        <div class="h-1 bg-gray-700/50 rounded-full overflow-hidden">
+          <div
+            class="h-full bg-blue-500 rounded-full transition-all duration-200"
+            :style="{ width: `${readingProgress}%` }"
+          ></div>
+        </div>
       </div>
-      <div class="h-1 bg-gray-700/50 rounded-full overflow-hidden">
-        <div
-          class="h-full bg-blue-500 rounded-full transition-all duration-200"
-          :style="{ width: `${readingProgress}%` }"
-        ></div>
-      </div>
+      
+      <!-- 目录列表 -->
+      <nav class="p-4 space-y-1 max-h-[calc(100vh-200px)] overflow-y-auto">
+        <a
+          v-for="item in toc"
+          :key="item.id"
+          :href="`#${item.id}`"
+          class="block py-2 px-3 text-sm rounded transition-all duration-200"
+          :class="[
+            activeId === item.id
+              ? 'text-blue-400 bg-blue-500/10'
+              : 'text-gray-300 hover:bg-white/5 hover:text-white',
+            `ml-${(item.level - 1) * 4}`
+          ]"
+          @click.prevent="scrollToHeading(item.id)"
+        >
+          {{ item.title }}
+        </a>
+      </nav>
     </div>
-    
-    <!-- 目录列表 -->
-    <nav class="p-4 space-y-1 max-h-[calc(100vh-200px)] overflow-y-auto">
-      <a
-        v-for="item in toc"
-        :key="item.id"
-        :href="`#${item.id}`"
-        class="block py-1.5 text-sm transition-colors duration-200"
-        :class="[
-          activeId === item.id
-            ? 'text-blue-400'
-            : 'text-gray-300 hover:text-white',
-          `pl-${(item.level - 1) * 4}`
-        ]"
-        @click.prevent="scrollToHeading(item.id)"
-      >
-        {{ item.title }}
-      </a>
-    </nav>
   </div>
 </template>
 

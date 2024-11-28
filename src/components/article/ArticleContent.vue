@@ -10,7 +10,7 @@ defineProps<{
 <template>
   <article>
     <!-- 文章头部信息 -->
-    <header class="bg-white/10 backdrop-blur-sm rounded-lg p-8 mb-8">
+    <header class="bg-white/5 backdrop-blur-sm rounded-lg p-8 mb-8 border border-white/10 hover:bg-white/10 transition-all">
       <h1 class="text-3xl font-bold text-white mb-4">
         {{ article.title }}
       </h1>
@@ -33,7 +33,7 @@ defineProps<{
 
     <!-- 文章内容 -->
     <div 
-      class="prose prose-invert prose-lg max-w-none bg-white/10 backdrop-blur-sm rounded-lg p-8 article-content"
+      class="prose prose-invert prose-lg max-w-none bg-white/5 backdrop-blur-sm rounded-lg p-8 article-content border border-white/10 hover:bg-white/10 transition-all"
       v-html="content"
     ></div>
   </article>
@@ -51,6 +51,7 @@ defineProps<{
 :deep(.prose h5),
 :deep(.prose h6) {
   @apply text-white mt-8 mb-4 scroll-mt-24 relative;
+  scroll-margin-top: 100px;
 }
 
 /* 标题锚点样式 */

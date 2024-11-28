@@ -48,7 +48,7 @@ const activeTab = ref<'time' | 'category' | 'tag'>('time')
         </div>
 
         <!-- 内容视图 -->
-        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-8">
+        <div class="bg-white/5 backdrop-blur-sm rounded-lg p-8 border border-white/10 hover:bg-white/10 transition-all">
           <TimelineView 
             v-if="activeTab === 'time'" 
             :articles="articleStore.articles" 
