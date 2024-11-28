@@ -1,0 +1,19 @@
+@import './base.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#app {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.landing-bg {
+  background-image: url('@/assets/images/landing-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* 删除其他默认样式 */

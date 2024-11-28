@@ -1,0 +1,28 @@
+.card-border {
+  @apply bg-white/10 backdrop-blur-sm 
+         border border-white/20
+         shadow-[0_8px_30px_rgb(0,0,0,0.12)]
+         dark:border-white/10
+         dark:bg-gray-800/10;
+  position: relative;
+}
+
+.card-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    120deg, 
+    rgba(255,255,255,0.2), 
+    rgba(255,255,255,0.1) 30%,
+    rgba(255,255,255,0.05)
+  );
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+} 
