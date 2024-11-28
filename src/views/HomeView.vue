@@ -18,13 +18,7 @@ const startReading = () => {
     <NavBar />
     
     <!-- 引导页面部分 -->
-    <section 
-      class="min-h-screen bg-fixed bg-cover bg-center relative"
-      :style="{ backgroundImage: `url(${bgImage})` }"
-    >
-      <!-- 背景遮罩 -->
-      <div class="fixed inset-0 bg-gradient-overlay"></div>
-
+    <section class="min-h-screen relative">
       <!-- 内容 -->
       <div class="relative z-10 flex flex-col items-center justify-center min-h-screen text-white px-4 pt-24">
         <!-- 头像区域 -->
