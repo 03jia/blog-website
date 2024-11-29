@@ -100,7 +100,7 @@ const handleDelete = async (id: number) => {
 const toggleVisibility = async (article: Article) => {
   try {
     loading.value = true
-    article.visible = !article.visible
+    await articleStore.toggleVisibility(article)
     const message = article.visible ? '文章已设为可见' : '文章已隐藏'
     alert(message)
   } catch (error) {
@@ -111,12 +111,10 @@ const toggleVisibility = async (article: Article) => {
 }
 
 // 切换文章推荐状态
-const toggleRecommended = async (article: any) => {
+const toggleRecommended = async (article: Article) => {
   try {
     loading.value = true
-    // TODO: 调用API更新推荐状态
-    await new Promise(resolve => setTimeout(resolve, 500))
-    article.recommended = !article.recommended
+    await articleStore.toggleRecommended(article)
   } finally {
     loading.value = false
   }
@@ -136,6 +134,27 @@ const handleTagsChange = (article: Article, tags: string[]) => {
   if (index !== -1) {
     articleStore.articles[index] = { ...article }
   }
+}
+
+// 添加标签相关状态
+const showTagInput = ref(false)
+const selectedArticle = ref<Article | null>(null)
+const newTag = ref('')
+
+// 处理添加标签
+const handleAddTag = (article: Article) => {
+  selectedArticle.value = article
+  showTagInput.value = true
+}
+
+// 确认添加标签
+const confirmAddTag = () => {
+  if (selectedArticle.value && newTag.value.trim()) {
+    const tags = [...(selectedArticle.value.tags || []), newTag.value.trim()]
+    handleTagsChange(selectedArticle.value, tags)
+    newTag.value = ''
+  }
+  showTagInput.value = false
 }
 </script>
 
@@ -202,44 +221,66 @@ const handleTagsChange = (article: Article, tags: string[]) => {
           <thead>
             <tr class="border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-purple-50 
                        dark:from-blue-900/10 dark:to-purple-900/10">
-              <th class="table-th w-[80px] text-center">ID</th>
-              <th class="table-th min-w-[300px]">
-                <div class="flex items-center space-x-2">
+              <th class="table-th text-center w-[80px]">
+                <div class="flex items-center justify-center gap-1">
+                  <i class="ri-hashtag text-gray-400" />
+                  <span>ID</span>
+                </div>
+              </th>
+              <th class="table-th">
+                <div class="flex items-center gap-1">
                   <i class="ri-article-line text-blue-500" />
                   <span>标题</span>
                 </div>
               </th>
-              <th class="table-th w-[100px]">
-                <div class="flex items-center space-x-2">
+              <th class="table-th">
+                <div class="flex items-center gap-1 whitespace-nowrap">
                   <i class="ri-folder-line text-green-500" />
                   <span>分类</span>
                 </div>
               </th>
-              <th class="table-th min-w-[200px]">
-                <div class="flex items-center space-x-2">
+              <th class="table-th min-w-[120px]">
+                <div class="flex items-center gap-1">
                   <i class="ri-price-tag-3-line text-purple-500" />
                   <span>标签</span>
                 </div>
               </th>
-              <th class="table-th w-[80px] text-center">
-                <i class="ri-eye-line text-cyan-500" />
+              <th class="table-th text-center w-[80px]">
+                <div class="flex items-center justify-center gap-1">
+                  <i class="ri-eye-line text-cyan-500" />
+                  <span>浏览</span>
+                </div>
               </th>
-              <th class="table-th w-[80px] text-center">
-                <i class="ri-thumb-up-line text-pink-500" />
+              <th class="table-th text-center w-[80px]">
+                <div class="flex items-center justify-center gap-1">
+                  <i class="ri-thumb-up-line text-pink-500" />
+                  <span>点赞</span>
+                </div>
               </th>
-              <th class="table-th w-[100px] text-center">
-                <i class="ri-eye-off-line text-amber-500" />
+              <th class="table-th text-center w-[100px]">
+                <div class="flex items-center justify-center gap-1">
+                  <i class="ri-eye-off-line text-amber-500" />
+                  <span>状态</span>
+                </div>
               </th>
-              <th class="table-th w-[100px] text-center">
-                <i class="ri-star-line text-yellow-500" />
+              <th class="table-th text-center w-[100px]">
+                <div class="flex items-center justify-center gap-1">
+                  <i class="ri-star-line text-yellow-500" />
+                  <span>推荐</span>
+                </div>
               </th>
               <th class="table-th w-[180px]">
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center gap-1">
                   <i class="ri-time-line text-indigo-500" />
                   <span>创建时间</span>
                 </div>
               </th>
-              <th class="table-th w-[120px] text-center">操作</th>
+              <th class="table-th text-center w-[120px]">
+                <div class="flex items-center justify-center gap-1">
+                  <i class="ri-settings-line text-gray-400" />
+                  <span>操作</span>
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -253,16 +294,27 @@ const handleTagsChange = (article: Article, tags: string[]) => {
                 <div class="truncate" :title="article.title">{{ article.title }}</div>
               </td>
               <td class="table-td">
-                <span class="px-2 py-1 text-xs rounded-full bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400">
+                <span class="inline-block px-2 py-1 text-xs rounded-full bg-blue-50 text-blue-600 
+                           dark:bg-blue-900/50 dark:text-blue-400 whitespace-nowrap">
                   {{ article.category }}
                 </span>
               </td>
-              <td class="table-td">
-                <TagInput 
-                  v-model="article.tags"
-                  @update:modelValue="tags => handleTagsChange(article, tags)"
-                  class="min-w-[200px]"
-                />
+              <td class="table-td min-w-[200px]">
+                <div class="flex flex-wrap gap-2 items-center">
+                  <span 
+                    v-for="tag in article.tags" 
+                    :key="tag"
+                    class="px-2 py-1 text-xs rounded-full bg-purple-500/10 text-purple-500"
+                  >
+                    {{ tag }}
+                  </span>
+                  <button 
+                    @click="handleAddTag(article)"
+                    class="w-6 h-6 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    <i class="ri-add-line text-gray-400 hover:text-purple-500" />
+                  </button>
+                </div>
               </td>
               <td class="table-td text-center">
                 <div class="flex items-center justify-center gap-1 text-gray-500">
@@ -351,17 +403,48 @@ const handleTagsChange = (article: Article, tags: string[]) => {
         </div>
       </div>
     </div>
+
+    <!-- 添加标签弹出框 -->
+    <div 
+      v-if="showTagInput"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      @click.self="showTagInput = false"
+    >
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-96">
+        <h3 class="text-lg font-medium mb-4">添加标签</h3>
+        <input
+          v-model="newTag"
+          type="text"
+          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600"
+          placeholder="输入标签名称"
+          @keyup.enter="confirmAddTag"
+        >
+        <div class="flex justify-end gap-2 mt-4">
+          <button 
+            class="px-4 py-2 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+            @click="showTagInput = false"
+          >
+            取消
+          </button>
+          <button 
+            class="px-4 py-2 text-sm bg-purple-500 text-white rounded-lg hover:bg-purple-600"
+            @click="confirmAddTag"
+          >
+            确定
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .table-th {
-  @apply px-4 py-4 text-left text-xs font-medium text-gray-600 dark:text-gray-300
-         uppercase tracking-wider whitespace-nowrap;
+  @apply px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400;
 }
 
 .table-td {
-  @apply px-4 py-4 text-sm text-gray-700 dark:text-gray-200 whitespace-nowrap;
+  @apply px-4 py-3 text-sm text-gray-900 dark:text-gray-300;
 }
 
 .switch {

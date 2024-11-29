@@ -17,6 +17,7 @@
     "@remixicon/react": "^4.5.0",
     "@tailwindcss/typography": "^0.5.15",
     "@types/markdown-it": "^14.1.2",
+    "@vercel/kv": "^3.0.0",
     "marked": "^15.0.3",
     "pinia": "^2.2.7",
     "remixicon": "^4.5.0",

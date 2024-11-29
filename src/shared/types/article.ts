@@ -2,7 +2,7 @@ export interface Article {
   id: number
   title: string
   description: string
-  content?: string
+  content: string
   category: string
   tags: string[]
   createdAt: string
@@ -11,9 +11,10 @@ export interface Article {
   likes: number
   comments: number
   status: 'draft' | 'published'
-  visible?: boolean
-  filename?: string
-  path?: string
+  visible: boolean
+  recommended?: boolean
+  filename: string
+  path: string
   sha?: string
 }
 

@@ -2,11 +2,20 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useArticleStore } from '@/client/stores/article'
-import { loadArticleContent } from '@/shared/utils/content-loader'
 import NavBar from '../components/layout/NavBar.vue'
 import ArticleContent from '../components/article/ArticleContent.vue'
 import TableOfContents from '../components/article/TableOfContents.vue'
 import bgImage from '@/shared/assets/images/bg.jpg'
+import { GiteeService } from '@/shared/services/gitee'
+import { decodeContent } from '@/shared/utils/article-parser'
+import MarkdownIt from 'markdown-it'
+
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true,
+  breaks: true
+})
 
 const route = useRoute()
 const articleStore = useArticleStore()
@@ -16,7 +25,17 @@ const article = ref(articleStore.articles.find(a => a.id === Number(route.params
 onMounted(async () => {
   try {
     if (article.value) {
-      content.value = await loadArticleContent(article.value.id)
+      if (article.value.content) {
+        content.value = md.render(article.value.content)
+      } else {
+        const rawContent = await GiteeService.getFileContent(article.value.path)
+        if (rawContent) {
+          const decodedContent = decodeContent(rawContent)
+          const parts = decodedContent.split('---').filter(Boolean)
+          const articleContent = parts.slice(1).join('---').trim()
+          content.value = md.render(articleContent)
+        }
+      }
     }
   } catch (error) {
     console.error('Error loading article content:', error)
