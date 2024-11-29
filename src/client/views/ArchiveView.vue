@@ -31,21 +31,19 @@ const switchTab = (tab: string) => {
 <template>
   <div
     class="min-h-screen bg-fixed bg-cover bg-center relative flex flex-col"
-    :style="{ backgroundImage: `url(${bgImage})` }"
   >
     <NavBar />
 
     <!-- 内容区域 -->
-    <main class="flex-1 relative z-10">
-      <div class="max-w-4xl mx-auto px-4 py-8 pt-20">
+    <main class="flex-1 relative z-10 pt-20">
+      <div class="max-w-4xl mx-auto px-4 py-8">
         <!-- 标题 -->
-        <div class="text-center mb-12">
-          <h1 class="text-4xl font-bold text-white mb-4">文章归档</h1>
-          <p class="text-gray-300">探索全部文章内容，按时间、分类或标签浏览</p>
+        <div class="mb-8">
+          <h1 class="text-2xl font-bold text-white">归档</h1>
         </div>
 
-        <!-- 切换按钮 -->
-        <div class="flex justify-center mb-12 space-x-6">
+        <!-- 标签页切换 -->
+        <div class="flex space-x-6 mb-8">
           <button
             v-for="tab in ['time', 'category', 'tag']"
             :key="tab"

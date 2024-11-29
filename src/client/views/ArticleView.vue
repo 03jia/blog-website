@@ -70,12 +70,11 @@ onMounted(async () => {
 <template>
   <div 
     class="min-h-screen bg-fixed bg-cover bg-center relative flex flex-col"
-    :style="{ backgroundImage: `url(${bgImage})` }"
   >
     <NavBar />
     
     <!-- 内容区域 -->
-    <main class="flex-1 relative z-10 overflow-y-auto pt-20">
+    <main class="flex-1 relative z-10 pt-20">
       <div class="container max-w-7xl mx-auto px-4 py-8">
         <div class="grid grid-cols-[minmax(0,1fr)_280px] gap-6">
           <!-- 左侧文章内容 -->

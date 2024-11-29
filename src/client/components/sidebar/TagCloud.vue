@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useArticleStore } from '@/client/stores/article'
 import { TagIcon } from '@heroicons/vue/24/outline'
+import { theme } from '@/shared/config/theme'
 
 const articleStore = useArticleStore()
 
@@ -15,28 +16,26 @@ const allTags = computed(() => {
 </script>
 
 <template>
-  <div class="card-border rounded-lg overflow-hidden">
+  <div :class="theme.sidebar.card.base">
     <!-- 标题区域 -->
     <div class="relative">
-      <div class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-blue-500/20"></div>
-      <div class="relative p-6">
+      <div :class="theme.sidebar.card.header.gradient"></div>
+      <div :class="theme.sidebar.card.header.wrapper">
         <div class="flex items-center space-x-2">
-          <TagIcon class="w-5 h-5 text-green-400" />
-          <h3 class="text-lg font-bold text-white">标签云</h3>
+          <TagIcon class="w-5 h-5" :class="theme.sidebar.card.header.icon" />
+          <h3 :class="theme.sidebar.card.header.title">标签云</h3>
         </div>
       </div>
     </div>
 
     <!-- 标签列表 -->
-    <div class="p-6 border-t border-white/10">
-      <div class="flex flex-wrap gap-2">
+    <div :class="theme.sidebar.card.content.wrapper">
+      <div :class="theme.sidebar.tags.wrapper">
         <button
           v-for="tag in allTags"
           :key="tag"
           @click="articleStore.toggleTag(tag)"
-          class="group flex items-center space-x-1 px-3 py-1.5 text-sm rounded-full 
-                 bg-green-500/10 text-green-300 hover:bg-green-500/20 
-                 transition-all duration-300 hover:scale-105"
+          :class="theme.sidebar.tags.tag"
         >
           <TagIcon class="w-3 h-3 group-hover:rotate-12 transition-transform" />
           <span>{{ tag }}</span>

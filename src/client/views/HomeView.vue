@@ -130,20 +130,20 @@ const startReading = () => {
       </div>
     </section>
 
-    <!-- 博客内容部分 - 独立的section，没有遮罩 -->
+    <!-- 博客内容部分 -->
     <section 
       id="content"
       class="relative z-10 bg-transparent"
     >
       <main class="max-w-7xl mx-auto px-4 py-16">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div class="flex flex-col lg:flex-row justify-center gap-8">
           <!-- 文章列表区域 -->
-          <div class="lg:col-span-8">
+          <div class="lg:w-[800px] flex-shrink-0">
             <ArticleList />
           </div>
           
           <!-- 侧边栏区域 -->
-          <div class="lg:col-span-4">
+          <div class="lg:w-[320px] flex-shrink-0">
             <Sidebar />
           </div>
         </div>

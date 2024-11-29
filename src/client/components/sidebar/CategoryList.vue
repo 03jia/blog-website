@@ -1,41 +1,34 @@
 <template>
-  <div class="card-border rounded-xl overflow-hidden">
+  <div :class="theme.sidebar.card.base">
     <!-- 标题栏 -->
-    <div class="p-4 border-b border-white/10 flex items-center justify-between">
-      <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-        <i class="ri-folder-2-line text-blue-400"></i>
-        <span>分类</span>
-      </h3>
+    <div class="relative">
+      <div :class="theme.sidebar.card.header.gradient"></div>
+      <div :class="theme.sidebar.card.header.wrapper">
+        <h3 :class="theme.sidebar.card.header.title">
+          <i class="ri-folder-2-line" :class="theme.sidebar.card.header.icon"></i>
+          <span>分类</span>
+        </h3>
+      </div>
     </div>
 
     <!-- 分类列表 -->
-    <div class="divide-y divide-white/5">
+    <div :class="[theme.sidebar.card.content.wrapper, 'divide-y divide-white/10']">
       <RouterLink
         v-for="category in categories"
         :key="category.name"
         :to="`/archive?tab=category&name=${category.name}`"
-        class="flex items-center justify-between p-4 hover:bg-white/5 group"
+        :class="theme.sidebar.category.item.base"
       >
         <div class="flex items-center space-x-3">
-          <div class="w-2 h-2 rounded-full bg-blue-400"></div>
-          <span class="text-gray-300 group-hover:text-white">
+          <div :class="theme.sidebar.category.item.icon"></div>
+          <span :class="theme.sidebar.category.item.text">
             {{ category.name }}
           </span>
         </div>
-        
-        <!-- 文章数量标签 -->
-        <span class="px-2 py-0.5 text-sm rounded-full bg-white/5 text-gray-400 group-hover:bg-blue-500/10 group-hover:text-blue-400">
+        <span :class="theme.sidebar.category.item.count">
           {{ category.count }}
         </span>
       </RouterLink>
-    </div>
-
-    <!-- 空状态 -->
-    <div 
-      v-if="categories.length === 0" 
-      class="p-4 text-center text-gray-400"
-    >
-      暂无分类
     </div>
   </div>
 </template>
@@ -43,6 +36,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useArticleStore } from '@/client/stores/article'
+import { theme } from '@/shared/config/theme'
 
 const articleStore = useArticleStore()
 

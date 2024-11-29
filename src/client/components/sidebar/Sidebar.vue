@@ -6,12 +6,10 @@ import CategoryList from './CategoryList.vue'
 </script>
 
 <template>
-  <aside class="sticky top-24">
-    <div class="space-y-6 transition-all duration-300">
-      <ProfileCard />
-      <Announcement />
-      <CategoryList />
-      <TagCloud />
-    </div>
-  </aside>
+  <div class="space-y-6">
+    <ProfileCard />
+    <Announcement />
+    <CategoryList />
+    <TagCloud />
+  </div>
 </template>
