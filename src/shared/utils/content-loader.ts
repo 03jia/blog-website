@@ -1,33 +1,49 @@
-import { articlesMeta } from '@/shared/config/articles-meta'
-import type { Article } from '@/shared/types/article'
+import { useArticleStore } from '@/client/stores/article'
 import MarkdownIt from 'markdown-it'
+
+const GITEE_API_BASE = 'https://gitee.com/api/v5'
+const REPO_OWNER = 'JIA_03'
+const REPO_NAME = 'blog-content'
+const ACCESS_TOKEN = import.meta.env.VITE_GITEE_TOKEN
 
 const md = new MarkdownIt({
   html: true,
   linkify: true,
-  typographer: true
+  typographer: true,
+  breaks: true
 })
-
-const ARTICLE_MAP = {
-  1: 'frontend/vue3-composition',
-  2: 'frontend/vue-typescript'
-} as const
 
 export const loadArticleContent = async (id: number): Promise<string> => {
   try {
-    console.log('Attempting to load content for article:', id)
-    const filePath = ARTICLE_MAP[id as keyof typeof ARTICLE_MAP]
+    const store = useArticleStore()
+    const article = store.articles.find(a => a.id === id)
     
-    if (!filePath) {
-      throw new Error(`No file mapping for article ${id}`)
+    if (!article || !article.path) {
+      throw new Error(`文章不存在或路径无效: ${id}`)
     }
-    
-    // 使用 raw-loader 加载 Markdown 文件
-    const content = await fetch(`/src/shared/content/${filePath}.md`)
-      .then(res => res.text())
-    
-    // 使用 markdown-it 渲染内容
-    return md.render(content)
+
+    if (article.content) {
+      return md.render(article.content)
+    }
+
+    const response = await fetch(
+      `${GITEE_API_BASE}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${article.path}?access_token=${ACCESS_TOKEN}`
+    )
+
+    if (!response.ok) {
+      throw new Error(`获取文章内容失败: ${response.statusText}`)
+    }
+
+    const data = await response.json()
+    const decodedContent = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))))
+    const parts = decodedContent.split('---').filter(Boolean)
+    const articleContent = parts.slice(1).join('---').trim()
+
+    if (!articleContent) {
+      throw new Error('文章内容为空')
+    }
+
+    return md.render(articleContent)
   } catch (error) {
     console.error('Error loading article content:', error)
     return '文章加载失败'

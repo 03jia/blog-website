@@ -11,6 +11,16 @@ const media = ref([
     createdAt: '2024-01-20'
   }
 ])
+
+const handleFileUpload = async (event: Event) => {
+  try {
+    // 处理文件上传逻辑
+  } catch (error) {
+    // 保留错误日志，但使用更友好的提示
+    console.error('文件上传失败:', error)
+    alert('文件上传失败')
+  }
+}
 </script>
 
 <template>

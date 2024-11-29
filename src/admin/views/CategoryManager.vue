@@ -9,6 +9,10 @@ const categories = ref([
     createdAt: '2024-01-20'
   }
 ])
+
+const handleCategoryChange = (category: string) => {
+  selectedCategory.value = category
+}
 </script>
 
 <template>

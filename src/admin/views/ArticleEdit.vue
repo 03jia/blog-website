@@ -40,10 +40,15 @@ onMounted(async () => {
 const handleSubmit = async () => {
   try {
     loading.value = true
-    await articleStore.saveArticle(article.value, article.value.content || '')
+    const index = articleStore.articles.findIndex(a => a.id === article.value.id)
+    if (index !== -1) {
+      articleStore.articles[index] = { ...article.value }
+    } else {
+      articleStore.articles.push({ ...article.value })
+    }
     router.push('/admin/articles')
   } catch (error) {
-    console.error('Failed to save article:', error)
+    console.error('保存文章失败:', error)
     alert('保存失败')
   } finally {
     loading.value = false

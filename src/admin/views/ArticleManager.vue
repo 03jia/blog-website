@@ -90,7 +90,7 @@ const handleDelete = async (id: number) => {
   
   try {
     loading.value = true
-    await articleStore.deleteArticle(id)
+    articleStore.articles = articleStore.articles.filter(a => a.id !== id)
   } finally {
     loading.value = false
   }
@@ -100,7 +100,7 @@ const handleDelete = async (id: number) => {
 const toggleVisibility = async (article: Article) => {
   try {
     loading.value = true
-    articleStore.toggleArticleVisibility(article.id)
+    article.visible = !article.visible
     const message = article.visible ? '文章已设为可见' : '文章已隐藏'
     alert(message)
   } catch (error) {
@@ -123,17 +123,19 @@ const toggleRecommended = async (article: any) => {
 }
 
 // 在组件挂载时初始化文章列表
-onMounted(() => {
-  articleStore.loadArticles()
+onMounted(async () => {
   if (articleStore.articles.length === 0) {
-    articleStore.initializeArticles()
+    await articleStore.fetchArticles()
   }
 })
 
 // 添加标签管理
 const handleTagsChange = (article: Article, tags: string[]) => {
   article.tags = tags
-  articleStore.saveArticle(article, article.content || '')
+  const index = articleStore.articles.findIndex(a => a.id === article.id)
+  if (index !== -1) {
+    articleStore.articles[index] = { ...article }
+  }
 }
 </script>
 

@@ -9,10 +9,7 @@ const articles = computed(() => articleStore.visibleArticles)
 
 onMounted(async () => {
   if (articleStore.articles.length === 0) {
-    await articleStore.loadArticles()
-    if (articleStore.articles.length === 0) {
-      await articleStore.initializeArticles()
-    }
+    await articleStore.fetchArticles()
   }
 })
 </script>
