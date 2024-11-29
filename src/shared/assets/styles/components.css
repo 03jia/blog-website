@@ -1,0 +1,21 @@
+/* 按钮样式 */
+.btn-primary {
+  @apply px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg 
+         hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 
+         focus:ring-blue-500 transition-colors;
+}
+
+/* 输入框样式 */
+.input-primary {
+  @apply appearance-none rounded-lg relative block w-full px-3 py-2 
+         border border-gray-300 dark:border-gray-700 
+         placeholder-gray-500 dark:placeholder-gray-400 
+         text-gray-900 dark:text-white 
+         focus:outline-none focus:ring-blue-500 focus:border-blue-500 
+         focus:z-10 sm:text-sm dark:bg-gray-800;
+}
+
+/* 标题样式 */
+.title-primary {
+  @apply text-2xl font-bold text-gray-900 dark:text-white;
+} 

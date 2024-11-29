@@ -49,7 +49,7 @@ const afterEnter = () => {
 </script>
 
 <style>
-@import './assets/styles/global.css';
+@import '@/shared/assets/styles/global.css';
 
 .app-wrapper {
   min-height: 100vh;
@@ -72,7 +72,7 @@ const afterEnter = () => {
 .bg-image {
   position: absolute;
   inset: 0;
-  background-image: url('@/assets/images/bg.jpg');
+  background-image: url('@/shared/assets/images/bg.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
