@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useArticleStore } from '@/client/stores/article'
 import Card from '../components/ui/Card.vue'
 import Button from '../components/ui/Button.vue'
 import Input from '../components/ui/Input.vue'
 import type { Article } from '@/shared/types/article'
+import TagInput from '../components/ui/TagInput.vue'
 
 const router = useRouter()
 const articleStore = useArticleStore()
@@ -24,12 +25,17 @@ const statusOptions = [
   { label: '草稿', value: 'draft' }
 ]
 
+// 获取所有分类
+const categories = computed(() => {
+  const categorySet = new Set(articleStore.articles.map(article => article.category))
+  return Array.from(categorySet)
+})
+
 // 分类选项
 const categoryOptions = computed(() => {
-  const categories = new Set(articleStore.articles.map(article => article.category))
   return [
     { label: '请选择分类', value: '' },
-    ...Array.from(categories).map(category => ({
+    ...categories.value.map(category => ({
       label: category,
       value: category
     }))
@@ -84,10 +90,7 @@ const handleDelete = async (id: number) => {
   
   try {
     loading.value = true
-    // TODO: 调用删除 API
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    // 从列表中移除
-    articleStore.articles = articleStore.articles.filter(a => a.id !== id)
+    await articleStore.deleteArticle(id)
   } finally {
     loading.value = false
   }
@@ -98,9 +101,8 @@ const toggleVisibility = async (article: Article) => {
   try {
     loading.value = true
     articleStore.toggleArticleVisibility(article.id)
-    // 使用原生 alert 或者自定义一个提示组件
     const message = article.visible ? '文章已设为可见' : '文章已隐藏'
-    alert(message) // 或者使用自定义的提示组件
+    alert(message)
   } catch (error) {
     alert('操作失败')
   } finally {
@@ -118,6 +120,20 @@ const toggleRecommended = async (article: any) => {
   } finally {
     loading.value = false
   }
+}
+
+// 在组件挂载时初始化文章列表
+onMounted(() => {
+  articleStore.loadArticles()
+  if (articleStore.articles.length === 0) {
+    articleStore.initializeArticles()
+  }
+})
+
+// 添加标签管理
+const handleTagsChange = (article: Article, tags: string[]) => {
+  article.tags = tags
+  articleStore.saveArticle(article, article.content || '')
 }
 </script>
 
@@ -182,23 +198,52 @@ const toggleRecommended = async (article: any) => {
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead>
-            <tr class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+            <tr class="border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-purple-50 
+                       dark:from-blue-900/10 dark:to-purple-900/10">
               <th class="table-th w-[80px] text-center">ID</th>
-              <th class="table-th min-w-[300px]">标题</th>
-              <th class="table-th w-[100px]">分类</th>
-              <th class="table-th min-w-[200px]">标签</th>
-              <th class="table-th w-[80px] text-center">浏览</th>
-              <th class="table-th w-[80px] text-center">点赞</th>
-              <th class="table-th w-[100px] text-center">可见</th>
-              <th class="table-th w-[100px] text-center">推荐</th>
-              <th class="table-th w-[180px]">创建时间</th>
+              <th class="table-th min-w-[300px]">
+                <div class="flex items-center space-x-2">
+                  <i class="ri-article-line text-blue-500" />
+                  <span>标题</span>
+                </div>
+              </th>
+              <th class="table-th w-[100px]">
+                <div class="flex items-center space-x-2">
+                  <i class="ri-folder-line text-green-500" />
+                  <span>分类</span>
+                </div>
+              </th>
+              <th class="table-th min-w-[200px]">
+                <div class="flex items-center space-x-2">
+                  <i class="ri-price-tag-3-line text-purple-500" />
+                  <span>标签</span>
+                </div>
+              </th>
+              <th class="table-th w-[80px] text-center">
+                <i class="ri-eye-line text-cyan-500" />
+              </th>
+              <th class="table-th w-[80px] text-center">
+                <i class="ri-thumb-up-line text-pink-500" />
+              </th>
+              <th class="table-th w-[100px] text-center">
+                <i class="ri-eye-off-line text-amber-500" />
+              </th>
+              <th class="table-th w-[100px] text-center">
+                <i class="ri-star-line text-yellow-500" />
+              </th>
+              <th class="table-th w-[180px]">
+                <div class="flex items-center space-x-2">
+                  <i class="ri-time-line text-indigo-500" />
+                  <span>创建时间</span>
+                </div>
+              </th>
               <th class="table-th w-[120px] text-center">操作</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
             <tr 
               v-for="article in paginatedArticles" 
-              :key="article.id"
+              :key="article.id || Date.now()"
               class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
             >
               <td class="table-td text-center">{{ article.id }}</td>
@@ -211,16 +256,11 @@ const toggleRecommended = async (article: any) => {
                 </span>
               </td>
               <td class="table-td">
-                <div class="flex flex-wrap gap-1">
-                  <span 
-                    v-for="tag in article.tags" 
-                    :key="tag"
-                    class="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-600
-                           dark:bg-gray-800 dark:text-gray-300"
-                  >
-                    {{ tag }}
-                  </span>
-                </div>
+                <TagInput 
+                  v-model="article.tags"
+                  @update:modelValue="tags => handleTagsChange(article, tags)"
+                  class="min-w-[200px]"
+                />
               </td>
               <td class="table-td text-center">
                 <div class="flex items-center justify-center gap-1 text-gray-500">
@@ -314,26 +354,27 @@ const toggleRecommended = async (article: any) => {
 
 <style scoped>
 .table-th {
-  @apply px-4 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 
+  @apply px-4 py-4 text-left text-xs font-medium text-gray-600 dark:text-gray-300
          uppercase tracking-wider whitespace-nowrap;
 }
 
 .table-td {
-  @apply px-4 py-4 text-sm text-gray-900 dark:text-gray-100 whitespace-nowrap;
+  @apply px-4 py-4 text-sm text-gray-700 dark:text-gray-200 whitespace-nowrap;
 }
 
 .switch {
   @apply relative inline-flex h-6 w-11 items-center rounded-full
          bg-gray-200 dark:bg-gray-700 transition-colors duration-200
-         focus:outline-none;
+         focus:outline-none cursor-pointer;
 }
 
 .switch-active {
-  @apply bg-blue-600;
+  @apply bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg;
 }
 
 .switch-slider {
-  @apply inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200;
+  @apply inline-block h-4 w-4 transform rounded-full bg-white 
+         transition-transform duration-200 shadow-md;
 }
 
 .switch-active .switch-slider {
@@ -342,5 +383,15 @@ const toggleRecommended = async (article: any) => {
 
 .switch:not(.switch-active) .switch-slider {
   @apply translate-x-1;
+}
+
+/* 添加表格行悬停效果 */
+tbody tr:hover .table-td {
+  @apply bg-gray-50/50 dark:bg-gray-800/50;
+}
+
+/* 添加操作按钮动画 */
+.table-td button {
+  @apply transition-all duration-200 hover:scale-110;
 }
 </style> 

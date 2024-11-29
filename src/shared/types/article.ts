@@ -12,6 +12,9 @@ export interface Article {
   comments: number
   status: 'draft' | 'published'
   visible?: boolean
+  filename?: string
+  path?: string
+  sha?: string
 }
 
 export interface ArticleMeta {

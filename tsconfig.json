@@ -19,13 +19,8 @@
     "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@client/*": ["./src/client/*"],
-      "@admin/*": ["./src/admin/*"],
-      "@shared/*": ["./src/shared/*"]
-    },
-    "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
-    "skipLibCheck": true
+      "@/*": ["./src/*"]
+    }
   },
   "include": [
     "src/**/*.ts",

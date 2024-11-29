@@ -58,7 +58,10 @@ const recentArticles = computed(() => {
 
 onMounted(async () => {
   if (articleStore.articles.length === 0) {
-    await articleStore.fetchArticles()
+    await articleStore.loadArticles()
+    if (articleStore.articles.length === 0) {
+      await articleStore.initializeArticles()
+    }
   }
 })
 </script>
