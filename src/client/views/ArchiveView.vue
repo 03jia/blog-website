@@ -33,9 +33,6 @@ const switchTab = (tab: string) => {
     class="min-h-screen bg-fixed bg-cover bg-center relative flex flex-col"
     :style="{ backgroundImage: `url(${bgImage})` }"
   >
-    <!-- 背景遮罩 -->
-    <div class="fixed inset-0 bg-gradient-overlay"></div>
-    
     <NavBar />
 
     <!-- 内容区域 -->
@@ -172,13 +169,35 @@ const switchTab = (tab: string) => {
   background: transparent;
 }
 
-/* 遮罩层样式 */
-.bg-gradient-overlay {
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.3),
-    rgba(0, 0, 0, 0.7)
-  );
-  backdrop-filter: blur(8px);
+/* 标签切换动画 */
+.tab-item {
+  @apply transition-all duration-150;
+}
+
+/* 下划线动画 */
+.tab-indicator {
+  @apply absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500/0 via-blue-500 to-blue-500/0
+        transition-all duration-150;
+}
+
+/* 标签内容切换动画 */
+.tab-content-enter-active,
+.tab-content-leave-active {
+  transition: opacity 0.15s ease-out;
+}
+
+.tab-content-enter-from,
+.tab-content-leave-to {
+  opacity: 0;
+}
+
+/* 标签悬停效果 */
+.tab-hover {
+  @apply transition-colors duration-150;
+}
+
+/* 标签文字动画 */
+.tab-text {
+  @apply transition-colors duration-150;
 }
 </style> 

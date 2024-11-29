@@ -9,21 +9,43 @@ import bgImage from '@/shared/assets/images/bg.jpg'
 import { GiteeService } from '@/shared/services/gitee'
 import { decodeContent } from '@/shared/utils/article-parser'
 import MarkdownIt from 'markdown-it'
+import hljs from 'highlight.js'
+import 'highlight.js/styles/github-dark.css'
+import markdownItAttrs from 'markdown-it-attrs'
+import markdownItHighlightjs from 'markdown-it-highlightjs'
 
-const md = new MarkdownIt({
+const md: MarkdownIt = new MarkdownIt({
   html: true,
   linkify: true,
   typographer: true,
-  breaks: true
+  breaks: true,
+  highlight: function (str, lang) {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        const highlighted = hljs.highlight(str, { language: lang }).value
+        return `<pre class="language-${lang}"><code>${highlighted}</code></pre>`
+      } catch (__) {}
+    }
+    return `<pre><code>${md.utils.escapeHtml(str)}</code></pre>`
+  }
 })
+
+md.use(markdownItAttrs)
+md.use(markdownItHighlightjs)
 
 const route = useRoute()
 const articleStore = useArticleStore()
 const content = ref('')
-const article = ref(articleStore.articles.find(a => a.id === Number(route.params.id)))
+const article = ref<Article | null>(null)
 
 onMounted(async () => {
   try {
+    if (articleStore.articles.length === 0) {
+      await articleStore.fetchArticles()
+    }
+    
+    article.value = articleStore.articles.find(a => a.id === Number(route.params.id))
+    
     if (article.value) {
       if (article.value.content) {
         content.value = md.render(article.value.content)
@@ -34,6 +56,7 @@ onMounted(async () => {
           const parts = decodedContent.split('---').filter(Boolean)
           const articleContent = parts.slice(1).join('---').trim()
           content.value = md.render(articleContent)
+          articleStore.updateArticleContent(article.value.id, articleContent)
         }
       }
     }
@@ -49,9 +72,6 @@ onMounted(async () => {
     class="min-h-screen bg-fixed bg-cover bg-center relative flex flex-col"
     :style="{ backgroundImage: `url(${bgImage})` }"
   >
-    <!-- 背景遮罩 -->
-    <div class="fixed inset-0 bg-gradient-overlay"></div>
-    
     <NavBar />
     
     <!-- 内容区域 -->
@@ -86,11 +106,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.bg-gradient-overlay {
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7));
-  backdrop-filter: blur(8px);
-}
-
 /* 调整滚动条样式 */
 main::-webkit-scrollbar {
   @apply w-2;

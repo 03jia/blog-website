@@ -8,42 +8,82 @@ import {
   BoltIcon
 } from '@heroicons/vue/24/outline'
 
-const tocItems = ref<{ id: string; text: string; level: number }[]>([])
+interface TocItem {
+  id: string
+  text: string
+  level: number
+  children: TocItem[]
+}
+
+const tocItems = ref<TocItem[]>([])
 const activeId = ref('')
 const progress = ref(0)
+let scrollTimer: number | null = null
 
-// 生成目录
+// 生成目录结构
 const generateToc = () => {
   const article = document.querySelector('.article-content')
   if (!article) return
 
-  // 只选择文章内容中的标题
   const headings = article.querySelectorAll('.prose h1, .prose h2, .prose h3')
-  tocItems.value = Array.from(headings).map((heading, index) => {
-    // 使用索引生成唯一ID
+  const items: TocItem[] = []
+  const stack: TocItem[][] = [items]
+  let prevLevel = 0
+
+  headings.forEach((heading, index) => {
+    const level = Number(heading.tagName[1])
     const id = `toc-heading-${index}`
     heading.id = id
     
-    // 移除所有 # 符号并清理空格
-    const text = heading.textContent?.replace(/#/g, '').trim() || ''
-    
-    return {
+    const item: TocItem = {
       id,
-      text,
-      level: Number(heading.tagName[1])
+      text: heading.textContent?.trim() || '',
+      level,
+      children: []
     }
+
+    // 如果是第一个标题，直接添加到根级别
+    if (stack.length === 1 && items.length === 0) {
+      items.push(item)
+      prevLevel = level
+      return
+    }
+
+    // 根据层级关系构建树形结构
+    if (level > prevLevel) {
+      // 当前标题是子标题
+      const parent = stack[stack.length - 1][stack[stack.length - 1].length - 1]
+      if (parent) {
+        parent.children.push(item)
+        stack.push(parent.children)
+      }
+    } else if (level < prevLevel) {
+      // 当前标题层级比前一个浅
+      const popCount = prevLevel - level
+      for (let i = 0; i < popCount; i++) {
+        stack.pop()
+      }
+      stack[stack.length - 1].push(item)
+    } else {
+      // 同级标题
+      stack[stack.length - 1].push(item)
+    }
+
+    prevLevel = level
   })
+
+  tocItems.value = items
 }
 
 // 滚动到指定标题
 const scrollToHeading = (id: string) => {
   const heading = document.querySelector(`#${id}`)
   if (heading) {
-    const navHeight = 80 // 导航栏高度
-    const offset = 24 // 额外偏移量
+    const navHeight = 80
+    const offset = 24
     
     // 计算目标滚动位置
-    const elementPosition = (heading as HTMLElement).getBoundingClientRect().top + window.pageYOffset
+    const elementPosition = (heading as HTMLElement).getBoundingClientRect().top + window.scrollY
     const offsetPosition = elementPosition - navHeight - offset
 
     // 设置活动标题
@@ -76,65 +116,57 @@ const calculateProgress = () => {
 
 // 更新当前阅读位置和进度
 const updateActiveHeading = () => {
-  const navHeight = 80 // 导航栏高度
-  const scrollPosition = window.pageYOffset
-  
-  // 更新阅读进度
   progress.value = calculateProgress()
 
-  // 遍历所有标题，找到当前应该高亮的标题
-  for (let i = 0; i < tocItems.value.length; i++) {
-    const heading = document.querySelector(`#${tocItems.value[i].id}`)
-    if (heading && heading instanceof HTMLElement) {
-      const headingTop = heading.getBoundingClientRect().top + window.pageYOffset
-      const headingBottom = headingTop + heading.offsetHeight
-      
-      // 判断当前滚动位置是否在这个标题的区域内
-      if (scrollPosition + navHeight + 24 >= headingTop && 
-          (i === tocItems.value.length - 1 || 
-           scrollPosition + navHeight + 24 < headingBottom)) {
-        activeId.value = tocItems.value[i].id
-        break
+  // 使用 requestAnimationFrame 优化性能
+  if (scrollTimer) {
+    cancelAnimationFrame(scrollTimer)
+  }
+
+  scrollTimer = requestAnimationFrame(() => {
+    const navHeight = 80
+    const scrollPosition = window.scrollY + navHeight
+    let currentHeading = null
+    let minDistance = Infinity
+
+    // 遍历所有标题，找到最接近视口顶部的标题
+    const headings = document.querySelectorAll('.prose h1, .prose h2, .prose h3')
+    headings.forEach(heading => {
+      if (heading) {
+        const rect = heading.getBoundingClientRect()
+        // 计算标题到视口顶部的距离
+        const distance = Math.abs(rect.top - navHeight)
+        
+        // 如果标题在视口上方且距离更近
+        if (rect.top <= navHeight && distance < minDistance) {
+          minDistance = distance
+          currentHeading = heading
+        }
       }
+    })
+
+    // 更新激活的标题
+    if (currentHeading) {
+      activeId.value = currentHeading.id
+    } else if (scrollPosition <= navHeight && tocItems.value.length > 0) {
+      // 如果在页面顶部，激活第一个标题
+      activeId.value = tocItems.value[0].id
     }
-  }
-
-  // 如果滚动到顶部，高亮第一个标题
-  if (scrollPosition < navHeight && tocItems.value.length > 0) {
-    activeId.value = tocItems.value[0].id
-  }
-}
-
-// 使用防抖优化滚动事件处理
-let scrollTimer: number | null = null
-const handleScroll = () => {
-  if (scrollTimer) window.clearTimeout(scrollTimer)
-  scrollTimer = window.setTimeout(updateActiveHeading, 100)
-}
-
-// 返回顶部
-const scrollToTop = () => {
-  window.scrollTo({ 
-    top: 0, 
-    behavior: 'smooth' 
   })
-  
-  // 如果有标题，设置第一个为活动标题
-  if (tocItems.value.length > 0) {
-    activeId.value = tocItems.value[0].id
-  }
 }
 
 onMounted(() => {
   generateToc()
-  window.addEventListener('scroll', handleScroll)
-  // 初始化进度和激活状态
+  window.addEventListener('scroll', updateActiveHeading, { passive: true })
+  // 初始化激活状态
   updateActiveHeading()
 })
 
 onUnmounted(() => {
-  if (scrollTimer) window.clearTimeout(scrollTimer)
-  window.removeEventListener('scroll', handleScroll)
+  if (scrollTimer) {
+    cancelAnimationFrame(scrollTimer)
+  }
+  window.removeEventListener('scroll', updateActiveHeading)
 })
 </script>
 
@@ -170,45 +202,104 @@ onUnmounted(() => {
     </div>
 
     <!-- 目录卡片 -->
-    <div class="card-border rounded-lg overflow-hidden flex flex-col">
-      <!-- 标题区域 -->
-      <div class="relative flex-shrink-0">
+    <div class="card-border rounded-lg overflow-hidden">
+      <div class="relative p-4 border-b border-white/10">
         <div class="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20"></div>
-        <div class="relative p-4 flex items-center justify-between">
+        <div class="relative flex items-center justify-between">
           <div class="flex items-center space-x-2">
             <ListBulletIcon class="w-5 h-5 text-blue-400" />
             <h3 class="text-lg font-bold text-white">目录</h3>
           </div>
           <button 
             @click="scrollToTop"
-            class="p-1 rounded-lg hover:bg-white/10 transition-colors group"
+            class="p-1 rounded-lg hover:bg-white/10"
             title="返回顶部"
           >
-            <ArrowUpCircleIcon class="w-5 h-5 text-gray-400 group-hover:text-blue-400" />
+            <ArrowUpCircleIcon class="w-5 h-5 text-gray-400 hover:text-blue-400" />
           </button>
         </div>
       </div>
 
       <!-- 目录列表 -->
-      <div class="p-4 space-y-1 overflow-y-auto" style="max-height: 60vh">
-        <button
-          v-for="{ id, text, level } in tocItems"
-          :key="id"
-          @click="scrollToHeading(id)"
-          class="group flex items-center w-full text-left transition-all duration-100 rounded-lg px-2 py-1.5"
-          :class="[
-            'pl-' + (level * 4),
-            activeId === id 
-              ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-400' 
-              : 'text-gray-400 hover:bg-white/5 hover:text-white',
-          ]"
-        >
-          <ChevronRightIcon 
-            class="w-4 h-4 mr-2 transition-transform duration-100"
-            :class="activeId === id ? 'text-blue-400 rotate-90' : 'text-gray-500 group-hover:text-white'"
-          />
-          <span class="truncate transition-colors duration-100">{{ text }}</span>
-        </button>
+      <div class="p-4 space-y-1 overflow-y-auto max-h-[60vh]">
+        <template v-if="tocItems.length">
+          <div 
+            v-for="item in tocItems" 
+            :key="item.id"
+            class="w-full"
+          >
+            <button
+              @click="scrollToHeading(item.id)"
+              :class="[
+                'w-full text-left rounded px-2 py-1.5 flex items-center toc-item',
+                activeId === item.id 
+                  ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-400' 
+                  : 'text-gray-400'
+              ]"
+            >
+              <ChevronRightIcon 
+                :class="[
+                  'w-4 h-4 mr-2',
+                  activeId === item.id ? 'text-blue-400 rotate-90' : 'text-gray-500'
+                ]"
+              />
+              <span class="truncate">{{ item.text }}</span>
+            </button>
+
+            <!-- 二级标题 -->
+            <template v-if="item.children.length">
+              <div 
+                v-for="child in item.children"
+                :key="child.id"
+                class="w-full"
+              >
+                <button
+                  @click="scrollToHeading(child.id)"
+                  :class="[
+                    'w-full text-left rounded px-2 py-1.5 flex items-center pl-8 toc-item',
+                    activeId === child.id 
+                      ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-400' 
+                      : 'text-gray-400'
+                  ]"
+                >
+                  <ChevronRightIcon 
+                    :class="[
+                      'w-4 h-4 mr-2',
+                      activeId === child.id ? 'text-blue-400 rotate-90' : 'text-gray-500'
+                    ]"
+                  />
+                  <span class="truncate">{{ child.text }}</span>
+                </button>
+
+                <!-- 三级标题 -->
+                <template v-if="child.children.length">
+                  <button
+                    v-for="subChild in child.children"
+                    :key="subChild.id"
+                    @click="scrollToHeading(subChild.id)"
+                    :class="[
+                      'w-full text-left rounded px-2 py-1.5 flex items-center pl-12 toc-item',
+                      activeId === subChild.id 
+                        ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-400' 
+                        : 'text-gray-400'
+                    ]"
+                  >
+                    <ChevronRightIcon 
+                      :class="[
+                        'w-4 h-4 mr-2',
+                        activeId === subChild.id ? 'text-blue-400 rotate-90' : 'text-gray-500'
+                      ]"
+                    />
+                    <span class="truncate">{{ subChild.text }}</span>
+                  </button>
+                </template>
+              </div>
+            </template>
+          </div>
+        </template>
+        <div v-else class="text-center text-gray-400">
+          暂无目录
+        </div>
       </div>
     </div>
   </nav>
@@ -219,8 +310,10 @@ onUnmounted(() => {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
-              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
 /* 自定义滚动条样式 */
@@ -243,21 +336,12 @@ onUnmounted(() => {
 
 /* 进度条闪光动画 */
 .bg-shine {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
 }
 
 @keyframes shine {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(100%);
-  }
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
 }
 
 .animate-shine {
@@ -266,17 +350,29 @@ onUnmounted(() => {
 
 /* 闪电图标动画 */
 @keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(0.95);
-  }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.95); }
 }
 
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* 目录项样式 */
+.toc-item {
+  @apply text-gray-400;
+  /* 移除过渡效果 */
+  transition: none;
+}
+
+.toc-item:hover {
+  @apply bg-white/10 text-white;
+}
+
+/* 移除所有过渡效果 */
+.card-border,
+.copy-button,
+.toc-item * {
+  transition: none !important;
 }
 </style>

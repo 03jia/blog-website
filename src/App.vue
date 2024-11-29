@@ -7,7 +7,6 @@ import { RouterView } from 'vue-router'
     <!-- 背景层 -->
     <div class="fixed-background">
       <div class="bg-image"></div>
-      <div class="bg-overlay"></div>
     </div>
     
     <!-- 内容层 -->
@@ -78,18 +77,6 @@ const afterEnter = () => {
   background-repeat: no-repeat;
   transform: scale(1.02); /* 稍微放大一点防止边缘露白 */
   will-change: transform;
-}
-
-/* 背景遮罩 */
-.bg-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.3),
-    rgba(0, 0, 0, 0.7)
-  );
-  backdrop-filter: blur(8px);
 }
 
 /* 内容层 */

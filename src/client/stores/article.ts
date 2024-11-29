@@ -87,6 +87,16 @@ export const useArticleStore = defineStore('article', {
       const recommended = !article.recommended
       await toggleArticleRecommended(article.id, recommended)
       article.recommended = recommended
+    },
+
+    // 更新文章内容
+    updateArticleContent(id: number, content: string) {
+      const article = this.articles.find(a => a.id === id)
+      if (article) {
+        article.content = content
+      }
     }
-  }
+  },
+
+  persist: true
 }) 

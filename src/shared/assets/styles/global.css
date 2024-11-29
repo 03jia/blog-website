@@ -3,7 +3,7 @@
 /* 全局动画 */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s ease-out;
 }
 
 .fade-enter-from,
@@ -14,8 +14,9 @@
 /* 卡片边框样式 */
 .card-border {
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  will-change: transform, background-color;
 }
 
 /* 渐变背景 */
@@ -24,4 +25,38 @@
     rgba(59, 130, 246, 0.2), 
     rgba(139, 92, 246, 0.2)
   );
+}
+
+/* 全局链接样式 */
+a {
+  cursor: pointer;
+  transition: color 0.2s ease-out;
+}
+
+/* 优化滚动行为 */
+html {
+  scroll-behavior: smooth;
+}
+
+/* 文章标题悬停效果 */
+.article-title {
+  transition: color 0.2s ease-out;
+}
+
+.article-title:hover {
+  color: rgb(96, 165, 250);
+}
+
+/* 优化动画性能 */
+* {
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 平滑滚动 */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
 } 
