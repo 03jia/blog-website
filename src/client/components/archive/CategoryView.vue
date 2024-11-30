@@ -36,7 +36,10 @@ const categories = computed(() => {
       :class="theme.archive.category.card.wrapper"
     >
       <!-- 分类标题 -->
-      <div :class="theme.archive.category.card.header.wrapper">
+      <RouterLink 
+        :to="`/articles?category=${category.name}`"
+        :class="theme.archive.category.card.header.wrapper"
+      >
         <div :class="theme.archive.category.card.header.title.wrapper">
           <FolderIcon :class="theme.archive.category.card.header.title.icon" />
           <h3 :class="theme.archive.category.card.header.title.text">
@@ -46,7 +49,7 @@ const categories = computed(() => {
         <span :class="theme.archive.category.card.header.count">
           {{ category.articles.length }} 篇文章
         </span>
-      </div>
+      </RouterLink>
 
       <!-- 文章列表 -->
       <div :class="theme.archive.category.card.list.wrapper">

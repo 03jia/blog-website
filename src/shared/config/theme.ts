@@ -1,4 +1,27 @@
 export const theme = {
+  // 添加过渡和动画时间配置
+  transition: {
+    // 基础过渡时间
+    duration: {
+      base: 'duration-300', // 300ms, 适用于大多数过渡效果
+      fast: 'duration-200', // 200ms, 适用于小型UI元素
+      slow: 'duration-500'  // 500ms, 适用于大型动画
+    },
+    // 过渡曲线
+    timing: {
+      default: 'ease-in-out',
+      bounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)', // 弹跳效果
+      smooth: 'cubic-bezier(0.4, 0, 0.2, 1)' // 平滑效果
+    },
+    // 常用组合
+    common: {
+      all: 'transition-all duration-300 ease-in-out',
+      transform: 'transition-transform duration-300 ease-in-out',
+      colors: 'transition-colors duration-300 ease-in-out',
+      opacity: 'transition-opacity duration-300 ease-in-out'
+    }
+  },
+
   // 卡片基础样式
   card: {
     base: [
@@ -11,7 +34,7 @@ export const theme = {
     hover: [
       'hover:border-blue-200',
       'hover:translate-y-[-2px]',
-      'hover:shadow-md hover:shadow-blue-100',
+      'hover:shadow-md hover:shadow-blue-100/50',
       'hover:bg-white/95'
     ].join(' ')
   },
@@ -19,21 +42,50 @@ export const theme = {
   // 文章卡片样式
   articleCard: {
     image: {
-      wrapper: 'relative h-48 overflow-hidden',
-      overlay: 'absolute inset-0 bg-gradient-to-b from-transparent to-black/30'
+      wrapper: [
+        'relative h-40 overflow-hidden rounded-t-lg',
+        'transition-all duration-300'
+      ].join(' '),
+      overlay: [
+        'absolute inset-0',
+        'bg-gradient-to-b from-transparent via-black/5 to-black/30',
+        'group-hover:to-black/40 transition-colors duration-300'
+      ].join(' ')
     },
     content: {
-      wrapper: 'relative p-6',
-      title: 'text-xl font-bold text-gray-800 group-hover:text-blue-500 transition-colors truncate',
-      description: 'text-gray-600 text-sm line-clamp-2 mb-4',
+      wrapper: [
+        'relative p-5',
+        'bg-white/95 backdrop-blur-sm',
+        'border-t border-gray-100/80'
+      ].join(' '),
+      title: [
+        'text-lg font-bold text-gray-800',
+        'line-clamp-1 mb-2',
+        'group-hover:text-blue-500 transition-colors duration-300'
+      ].join(' '),
+      description: [
+        'text-gray-600 text-sm',
+        'line-clamp-2 mb-3',
+        'leading-relaxed',
+        'group-hover:text-gray-700 transition-colors duration-300'
+      ].join(' '),
       meta: {
-        wrapper: 'flex items-center justify-between',
-        text: 'text-xs text-gray-500',
+        wrapper: [
+          'flex items-center justify-between',
+          'text-sm text-gray-500'
+        ].join(' '),
+        text: 'flex items-center space-x-3',
         icon: 'text-blue-400'
       },
       tags: {
-        wrapper: 'flex flex-wrap gap-1',
-        tag: 'px-1.5 py-0.5 text-xs rounded-full bg-blue-50 text-blue-500 hover:bg-blue-100 transition-colors'
+        wrapper: 'flex flex-wrap gap-1.5 mt-3',
+        tag: [
+          'px-2 py-0.5 text-xs rounded-full',
+          'bg-blue-50 text-blue-500',
+          'border border-blue-100',
+          'hover:bg-blue-100 hover:border-blue-200',
+          'transition-all duration-300'
+        ].join(' ')
       }
     }
   },
@@ -88,11 +140,33 @@ export const theme = {
       }
     },
     category: {
+      wrapper: 'space-y-1 p-4',
       item: {
-        base: 'flex items-center justify-between p-3 hover:bg-blue-50 transition-colors group',
-        icon: 'w-2 h-2 rounded-full bg-blue-400',
-        text: 'text-gray-600 group-hover:text-gray-900',
-        count: 'text-sm text-gray-400 group-hover:text-blue-500'
+        base: [
+          'flex items-center justify-between p-3 rounded-lg',
+          'group relative overflow-hidden',
+          'hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-transparent',
+          'transition-all duration-300'
+        ].join(' '),
+        icon: [
+          'w-2 h-2 rounded-full',
+          'bg-gradient-to-br from-blue-400 to-blue-500',
+          'group-hover:scale-110 transition-transform duration-300',
+          'shadow-sm shadow-blue-200/50'
+        ].join(' '),
+        text: [
+          'text-gray-600 font-medium',
+          'group-hover:text-blue-500',
+          'transition-colors duration-300',
+          'flex-1 ml-3'
+        ].join(' '),
+        count: [
+          'text-sm text-gray-400',
+          'bg-gray-50 rounded-full px-2 py-0.5',
+          'group-hover:bg-blue-50 group-hover:text-blue-500',
+          'transition-all duration-300',
+          'border border-gray-100 group-hover:border-blue-100'
+        ].join(' ')
       }
     },
     tags: {
@@ -420,6 +494,63 @@ export const theme = {
           content: 'p-4 overflow-x-auto'
         }
       }
+    }
+  },
+
+  // 导航栏样式
+  navbar: {
+    link: {
+      base: [
+        'flex items-center space-x-2 px-3 py-2 rounded-lg',
+        'text-gray-600 relative',
+        'hover:text-blue-500',
+        'transition-all duration-300'
+      ].join(' '),
+      active: [
+        'text-blue-500',
+        'before:absolute before:inset-0',
+        'before:bg-blue-50/50 before:rounded-lg',
+        'before:transition-all before:duration-300'
+      ].join(' '),
+      icon: [
+        'text-lg',
+        'transition-transform duration-300',
+        'group-hover:scale-110'
+      ].join(' ')
+    },
+    dropdown: {
+      wrapper: [
+        'absolute top-full left-0 mt-1 w-40',
+        'bg-white/90 backdrop-blur-sm',
+        'border border-gray-100/80 rounded-lg shadow-lg',
+        'transform transition-all duration-300',
+        'origin-top scale-95 opacity-0',
+        'group-hover:scale-100 group-hover:opacity-100'
+      ].join(' '),
+      item: [
+        'block w-full px-4 py-2',
+        'text-gray-600 hover:text-blue-500',
+        'hover:bg-blue-50/50',
+        'transition-all duration-300'
+      ].join(' ')
+    }
+  },
+
+  // 文章列表页面主题
+  articleList: {
+    wrapper: 'flex-1 relative z-10 pt-20 max-w-4xl mx-auto px-4 py-8',
+    header: {
+      wrapper: 'mb-8',
+      title: [
+        'text-3xl font-bold',
+        'bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent',
+        'hover:from-blue-600 hover:to-blue-400 transition-all duration-300'
+      ].join(' '),
+      subtitle: 'mt-2 text-gray-600'
+    },
+    content: {
+      wrapper: 'space-y-6',
+      empty: 'text-center text-gray-500 py-12'
     }
   }
 } 

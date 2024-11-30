@@ -12,16 +12,16 @@
     </div>
 
     <!-- 分类列表 -->
-    <div :class="[theme.sidebar.card.content.wrapper, 'divide-y divide-white/10']">
+    <div :class="theme.sidebar.card.content.wrapper">
       <RouterLink
         v-for="category in categories"
         :key="category.name"
-        :to="`/archive?tab=category&name=${category.name}`"
+        :to="`/articles?category=${category.name}`"
         :class="theme.sidebar.category.item.base"
       >
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center flex-1 min-w-0">
           <div :class="theme.sidebar.category.item.icon"></div>
-          <span :class="theme.sidebar.category.item.text">
+          <span :class="theme.sidebar.category.item.text" class="truncate">
             {{ category.name }}
           </span>
         </div>
@@ -57,18 +57,12 @@ const categories = computed(() => {
 </script>
 
 <style scoped>
-.card-border {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
-}
-
-/* 美化滚动条 */
+/* 自定义滚动条 */
 .divide-y {
   max-height: 300px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  scrollbar-color: rgba(59, 130, 246, 0.2) transparent;
 }
 
 .divide-y::-webkit-scrollbar {
@@ -80,11 +74,11 @@ const categories = computed(() => {
 }
 
 .divide-y::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(59, 130, 246, 0.2);
   border-radius: 2px;
 }
 
 .divide-y::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(59, 130, 246, 0.3);
 }
 </style> 

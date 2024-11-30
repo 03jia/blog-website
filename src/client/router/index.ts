@@ -29,6 +29,11 @@ const router = createRouter({
       name: 'about',
       component: () => import('@/client/views/AboutView.vue')
     },
+    {
+      path: '/articles',
+      name: 'articles',
+      component: () => import('@/client/components/article/ArticleCategoryList.vue')
+    },
     ...adminRoutes
   ]
 })

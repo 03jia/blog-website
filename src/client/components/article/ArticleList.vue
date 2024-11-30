@@ -1,27 +1,55 @@
 <script setup lang="ts">
-import type { Article } from '@/shared/types/article'
-import { RouterLink } from 'vue-router'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { useArticleStore } from '@/client/stores/article'
+import { theme } from '@/shared/config/theme'
+import ArticleCard from '../blog/ArticleCard.vue'
 
-defineProps<{
-  articles: Article[]
-}>()
+const route = useRoute()
+const articleStore = useArticleStore()
+
+// 获取分类参数
+const category = computed(() => route.query.category?.toString())
+
+// 根据分类筛选文章
+const filteredArticles = computed(() => {
+  if (category.value) {
+    return articleStore.visibleArticles.filter(
+      article => article.category === category.value
+    )
+  }
+  return articleStore.visibleArticles
+})
 </script>
 
 <template>
-  <div class="space-y-4">
-    <RouterLink
-      v-for="article in articles"
-      :key="article.id"
-      :to="`/article/${article.id}`"
-      class="block group bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 
-             hover:bg-white/10 transition-all duration-300 hover:border-blue-500/30 p-4"
-    >
-      <div class="flex items-center justify-between">
-        <h3 class="text-lg text-gray-300 group-hover:text-blue-400 transition-colors">
-          {{ article.title }}
-        </h3>
-        <span class="text-sm text-gray-400">{{ article.date }}</span>
+  <div class="min-h-screen">
+    <NavBar />
+    
+    <main class="max-w-4xl mx-auto px-4 py-8 pt-20">
+      <!-- 分类标题 -->
+      <div v-if="category" class="mb-8">
+        <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">
+          {{ category }}
+        </h1>
+        <p class="mt-2 text-gray-600">
+          共 {{ filteredArticles.length }} 篇文章
+        </p>
       </div>
-    </RouterLink>
+
+      <!-- 文章列表 -->
+      <div :class="theme.articleList.content.wrapper">
+        <template v-if="filteredArticles.length">
+          <ArticleCard 
+            v-for="article in filteredArticles"
+            :key="article.id"
+            :article="article"
+          />
+        </template>
+        <div v-else :class="theme.articleList.content.empty">
+          暂无文章
+        </div>
+      </div>
+    </main>
   </div>
 </template> 
