@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Article } from '@/shared/types/article'
-import { FolderIcon, ArrowRightIcon, DocumentTextIcon } from '@heroicons/vue/24/outline'
-import { RouterLink } from 'vue-router'
+import { theme } from '@/shared/config/theme'
+import { FolderIcon, DocumentTextIcon } from '@heroicons/vue/24/outline'
 
 interface Props {
   articles: Article[]
@@ -10,99 +10,66 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const categoryGroupedArticles = computed(() => {
+// 按分类分组文章
+const categories = computed(() => {
   const groups = new Map<string, Article[]>()
-  
   props.articles.forEach(article => {
-    const category = article.category || '未分类'
-    if (!groups.has(category)) {
-      groups.set(category, [])
+    if (!groups.has(article.category)) {
+      groups.set(article.category, [])
     }
-    groups.get(category)?.push(article)
+    groups.get(article.category)?.push(article)
   })
-  
-  return Array.from(groups.entries())
-    .sort((a, b) => a[0].localeCompare(b[0]))
+  return Array.from(groups.entries()).map(([name, articles]) => ({
+    name,
+    articles: articles.sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
+  }))
 })
 </script>
 
 <template>
-  <div class="space-y-8">
-    <RouterLink
-      v-for="[category, articles] in categoryGroupedArticles"
-      :key="category"
-      :to="`/category/${category}`"
-      class="block card-border rounded-xl overflow-hidden group hover:border-blue-500/30 transition-all duration-300"
+  <div :class="theme.archive.category.wrapper">
+    <div
+      v-for="category in categories"
+      :key="category.name"
+      :class="theme.archive.category.card.wrapper"
     >
       <!-- 分类标题 -->
-      <div class="relative">
-        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 group-hover:opacity-75 transition-opacity"></div>
-        <div class="relative p-4 flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <FolderIcon class="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
-            <h2 class="text-lg font-bold text-white">{{ category }}</h2>
-          </div>
-          <span class="px-2.5 py-1 text-sm bg-white/10 text-gray-300 rounded-full">
-            {{ articles.length }} 篇
-          </span>
+      <div :class="theme.archive.category.card.header.wrapper">
+        <div :class="theme.archive.category.card.header.title.wrapper">
+          <FolderIcon :class="theme.archive.category.card.header.title.icon" />
+          <h3 :class="theme.archive.category.card.header.title.text">
+            {{ category.name }}
+          </h3>
         </div>
+        <span :class="theme.archive.category.card.header.count">
+          {{ category.articles.length }} 篇文章
+        </span>
       </div>
 
       <!-- 文章列表 -->
-      <div class="divide-y divide-white/10">
-        <div
-          v-for="article in articles.slice(0, 3)"
+      <div :class="theme.archive.category.card.list.wrapper">
+        <RouterLink
+          v-for="article in category.articles"
           :key="article.id"
-          class="flex items-center justify-between p-4 hover:bg-white/5 transition-colors"
+          :to="`/article/${article.id}`"
+          :class="theme.archive.category.card.list.item.wrapper"
         >
-          <div class="flex items-center space-x-2">
-            <DocumentTextIcon class="w-4 h-4 text-gray-400 group-hover:text-blue-400 transition-colors" />
-            <h3 class="text-gray-300 group-hover:text-blue-400 transition-colors">
+          <div :class="theme.archive.category.card.list.item.title.wrapper">
+            <DocumentTextIcon :class="theme.archive.category.card.list.item.title.icon" />
+            <span :class="theme.archive.category.card.list.item.title.text">
               {{ article.title }}
-            </h3>
+            </span>
           </div>
-          <span class="text-sm text-gray-500">{{ article.date }}</span>
-        </div>
-
-        <!-- 查看更多提示 -->
-        <div class="p-4 flex items-center justify-between text-sm text-gray-400 group-hover:text-blue-400 transition-colors">
-          <span>查看此分类的所有文章</span>
-          <ArrowRightIcon class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-        </div>
+          <time 
+            :datetime="article.createdAt"
+            :class="theme.archive.category.card.list.item.date"
+          >
+            {{ article.createdAt }}
+          </time>
+        </RouterLink>
       </div>
-
-      <!-- 激活条 -->
-      <div class="h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
-    </RouterLink>
+    </div>
   </div>
-</template>
-
-<style scoped>
-.card-border {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  position: relative;
-}
-
-/* 添加鼠标悬停时的提示效果 */
-.card-border::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(120deg, #3b82f6, #8b5cf6);
-  -webkit-mask: 
-    linear-gradient(#fff 0 0) content-box, 
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.card-border:hover::after {
-  opacity: 1;
-}
-</style> 
+</template> 

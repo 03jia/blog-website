@@ -4,7 +4,6 @@ import {
   ListBulletIcon,
   ChevronRightIcon,
   BookOpenIcon,
-  ArrowUpCircleIcon,
   BoltIcon
 } from '@heroicons/vue/24/outline'
 import { theme } from '@/shared/config/theme'
@@ -176,24 +175,24 @@ onUnmounted(() => {
     <!-- 阅读进度卡片 -->
     <div class="card-border rounded-lg overflow-hidden">
       <div class="relative p-4">
-        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-50/30 to-blue-100/20"></div>
         <div class="relative flex items-center justify-between">
           <div class="flex items-center space-x-2">
-            <BookOpenIcon class="w-5 h-5 text-blue-400" />
-            <span class="text-sm font-medium text-gray-300">阅读进度</span>
+            <BookOpenIcon class="w-5 h-5 text-blue-500" />
+            <span class="text-sm font-medium text-gray-700">阅读进度</span>
           </div>
           <div class="flex items-center space-x-2">
             <BoltIcon 
               class="w-4 h-4 text-yellow-400 animate-pulse"
               :class="progress > 0 ? 'opacity-100' : 'opacity-0'"
             />
-            <span class="text-blue-400 font-bold">{{ Math.round(progress) }}%</span>
+            <span class="text-blue-500 font-bold">{{ Math.round(progress) }}%</span>
           </div>
         </div>
         <!-- 进度条 -->
-        <div class="relative mt-2 w-full h-2 bg-gray-700/50 rounded-full overflow-hidden">
+        <div class="relative mt-2 w-full h-2 bg-gray-100 rounded-full overflow-hidden">
           <div 
-            class="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500 ease-out rounded-full"
+            class="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 to-blue-400 transition-all duration-300 rounded-full"
             :style="{ width: `${progress}%` }"
           >
             <div class="absolute inset-0 bg-shine animate-shine"></div>
@@ -203,100 +202,96 @@ onUnmounted(() => {
     </div>
 
     <!-- 目录卡片 -->
-    <div :class="theme.toc.card.base">
-      <!-- 标题区域 -->
+    <div class="card-border rounded-lg overflow-hidden">
       <div class="relative">
-        <div :class="theme.toc.card.header.gradient"></div>
-        <div :class="theme.toc.card.header.wrapper">
+        <div class="absolute inset-0 bg-blue-50/30"></div>
+        <div class="relative p-4 border-b border-gray-100/80">
           <div class="flex items-center space-x-2">
-            <ListBulletIcon class="w-5 h-5" :class="theme.toc.card.header.icon" />
-            <h3 :class="theme.toc.card.header.title">目录</h3>
+            <ListBulletIcon class="w-5 h-5 text-blue-500" />
+            <h3 class="text-lg font-bold text-gray-800">目录</h3>
           </div>
         </div>
       </div>
 
       <!-- 目录内容 -->
-      <div :class="theme.toc.card.content.wrapper">
-        <!-- 目录列表 -->
-        <div class="p-4 space-y-1 overflow-y-auto max-h-[60vh]">
-          <template v-if="tocItems.length">
-            <div 
-              v-for="item in tocItems" 
-              :key="item.id"
-              class="w-full"
+      <div class="p-4 space-y-1 overflow-y-auto max-h-[60vh]">
+        <template v-if="tocItems.length">
+          <div 
+            v-for="item in tocItems" 
+            :key="item.id"
+            class="w-full"
+          >
+            <button
+              @click="scrollToHeading(item.id)"
+              class="w-full text-left rounded px-2 py-1.5 flex items-center transition-all duration-300"
+              :class="[
+                activeId === item.id 
+                  ? 'bg-blue-50 text-blue-500' 
+                  : 'text-gray-600 hover:bg-blue-50/50 hover:text-blue-500'
+              ]"
             >
-              <button
-                @click="scrollToHeading(item.id)"
+              <ChevronRightIcon 
+                class="w-4 h-4 mr-2 transition-transform duration-300"
                 :class="[
-                  'w-full text-left rounded px-2 py-1.5 flex items-center toc-item',
-                  activeId === item.id 
-                    ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-400' 
-                    : 'text-gray-400'
+                  activeId === item.id ? 'text-blue-500 rotate-90' : 'text-gray-400'
                 ]"
-              >
-                <ChevronRightIcon 
-                  :class="[
-                    'w-4 h-4 mr-2',
-                    activeId === item.id ? 'text-blue-400 rotate-90' : 'text-gray-500'
-                  ]"
-                />
-                <span class="truncate">{{ item.text }}</span>
-              </button>
+              />
+              <span class="truncate">{{ item.text }}</span>
+            </button>
 
-              <!-- 二级标题 -->
-              <template v-if="item.children.length">
-                <div 
-                  v-for="child in item.children"
-                  :key="child.id"
-                  class="w-full"
+            <!-- 二级标题 -->
+            <template v-if="item.children.length">
+              <div 
+                v-for="child in item.children"
+                :key="child.id"
+                class="w-full"
+              >
+                <button
+                  @click="scrollToHeading(child.id)"
+                  class="w-full text-left rounded px-2 py-1.5 flex items-center pl-8 transition-all duration-300"
+                  :class="[
+                    activeId === child.id 
+                      ? 'bg-blue-50 text-blue-500' 
+                      : 'text-gray-600 hover:bg-blue-50/50 hover:text-blue-500'
+                  ]"
                 >
-                  <button
-                    @click="scrollToHeading(child.id)"
+                  <ChevronRightIcon 
+                    class="w-4 h-4 mr-2 transition-transform duration-300"
                     :class="[
-                      'w-full text-left rounded px-2 py-1.5 flex items-center pl-8 toc-item',
-                      activeId === child.id 
-                        ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-400' 
-                        : 'text-gray-400'
+                      activeId === child.id ? 'text-blue-500 rotate-90' : 'text-gray-400'
+                    ]"
+                  />
+                  <span class="truncate">{{ child.text }}</span>
+                </button>
+
+                <!-- 三级标题 -->
+                <template v-if="child.children.length">
+                  <button
+                    v-for="subChild in child.children"
+                    :key="subChild.id"
+                    @click="scrollToHeading(subChild.id)"
+                    class="w-full text-left rounded px-2 py-1.5 flex items-center pl-12 transition-all duration-300"
+                    :class="[
+                      activeId === subChild.id 
+                        ? 'bg-blue-50 text-blue-500' 
+                        : 'text-gray-600 hover:bg-blue-50/50 hover:text-blue-500'
                     ]"
                   >
                     <ChevronRightIcon 
+                      class="w-4 h-4 mr-2 transition-transform duration-300"
                       :class="[
-                        'w-4 h-4 mr-2',
-                        activeId === child.id ? 'text-blue-400 rotate-90' : 'text-gray-500'
+                        activeId === subChild.id ? 'text-blue-500 rotate-90' : 'text-gray-400'
                       ]"
                     />
-                    <span class="truncate">{{ child.text }}</span>
+                    <span class="truncate">{{ subChild.text }}</span>
                   </button>
-
-                  <!-- 三级标题 -->
-                  <template v-if="child.children.length">
-                    <button
-                      v-for="subChild in child.children"
-                      :key="subChild.id"
-                      @click="scrollToHeading(subChild.id)"
-                      :class="[
-                        'w-full text-left rounded px-2 py-1.5 flex items-center pl-12 toc-item',
-                        activeId === subChild.id 
-                          ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-400' 
-                          : 'text-gray-400'
-                      ]"
-                    >
-                      <ChevronRightIcon 
-                        :class="[
-                          'w-4 h-4 mr-2',
-                          activeId === subChild.id ? 'text-blue-400 rotate-90' : 'text-gray-500'
-                        ]"
-                      />
-                      <span class="truncate">{{ subChild.text }}</span>
-                    </button>
-                  </template>
-                </div>
-              </template>
-            </div>
-          </template>
-          <div v-else class="text-center text-gray-400">
-            暂无目录
+                </template>
+              </div>
+            </template>
           </div>
+        </template>
+        <div v-else class="text-center text-gray-400">
+          暂无目录
         </div>
       </div>
     </div>
@@ -305,13 +300,9 @@ onUnmounted(() => {
 
 <style scoped>
 .card-border {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  will-change: transform;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 /* 自定义滚动条样式 */
@@ -324,17 +315,16 @@ onUnmounted(() => {
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
+  @apply bg-blue-200 rounded;
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  @apply bg-blue-300;
 }
 
 /* 进度条闪光动画 */
 .bg-shine {
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
 }
 
 @keyframes shine {
@@ -354,23 +344,5 @@ onUnmounted(() => {
 
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* 目录项样式 */
-.toc-item {
-  @apply text-gray-400;
-  /* 移除过渡效果 */
-  transition: none;
-}
-
-.toc-item:hover {
-  @apply bg-white/10 text-white;
-}
-
-/* 移除所有过渡效果 */
-.card-border,
-.copy-button,
-.toc-item * {
-  transition: none !important;
 }
 </style>

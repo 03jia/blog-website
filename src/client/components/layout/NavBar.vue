@@ -41,6 +41,7 @@ const navItems = [
 ]
 
 const showArchiveMenu = ref(false)
+const currentHoverPath = ref('')
 let timeoutId: number | null = null
 
 const router = useRouter()
@@ -50,6 +51,7 @@ const route = useRoute()
 const isArchivePage = computed(() => {
   return route.path === '/archive' || route.path.startsWith('/category/')
 })
+
 const currentArchiveTab = computed(() => {
   if (route.path === '/archive') {
     return route.query.tab?.toString() || 'time'
@@ -60,19 +62,21 @@ const currentArchiveTab = computed(() => {
   return null
 })
 
-// 显示下拉菜单
-const showMenu = () => {
+// 修改显示菜单的方法
+const showMenu = (path: string) => {
   if (timeoutId) {
     clearTimeout(timeoutId)
     timeoutId = null
   }
+  currentHoverPath.value = path
   showArchiveMenu.value = true
 }
 
-// 隐藏下拉菜单
+// 修改隐藏菜单的方法
 const hideMenu = () => {
   timeoutId = window.setTimeout(() => {
     showArchiveMenu.value = false
+    currentHoverPath.value = ''
   }, 200)
 }
 
@@ -82,38 +86,90 @@ onUnmounted(() => {
     clearTimeout(timeoutId)
   }
 })
-
-// 移除 handleMenuClick 函数，因为我们现在使用 RouterLink
 </script>
 
 <template>
-  <nav 
-    class="fixed top-0 inset-x-0 z-50 bg-gradient-to-b from-black/60 to-black/40 backdrop-blur-md border-b border-white/10"
-  >
-    <div class="max-w-7xl mx-auto px-4">
+  <nav class="fixed top-0 inset-x-0 z-50">
+    <div class="absolute inset-0 bg-white/80 backdrop-blur-md border-b border-gray-100/80"></div>
+    
+    <div class="relative max-w-7xl mx-auto px-4">
       <div class="flex items-center justify-between h-16">
         <!-- Logo -->
         <RouterLink 
           to="/" 
-          class="flex items-center space-x-2 text-white hover:text-blue-400 transition-colors"
+          class="flex items-center space-x-2 group"
         >
-          <i class="ri-quill-pen-line text-2xl"></i>
-          <span class="text-xl font-bold">xiaoYu's Blog</span>
+          <i class="ri-quill-pen-line text-2xl text-gray-800 group-hover:text-blue-500 transition-colors"></i>
+          <span class="text-xl font-bold bg-gradient-text">xiaoYu's Blog</span>
         </RouterLink>
 
         <!-- 导航链接 -->
-        <div class="flex items-center space-x-6">
-          <RouterLink
+        <div class="flex items-center space-x-1">
+          <div
             v-for="item in navItems"
             :key="item.path"
-            :to="item.path"
-            class="flex items-center space-x-1 px-3 py-2 rounded-lg
-                 text-gray-300 hover:text-blue-400 hover:bg-blue-500/10
-                  transition-all duration-200"
+            class="relative"
+            @mouseenter="item.children && showMenu(item.path)"
+            @mouseleave="item.children && hideMenu()"
           >
-            <i :class="[item.icon, 'text-lg']"></i>
-            <span>{{ item.name }}</span>
-          </RouterLink>
+            <RouterLink
+              :to="item.path"
+              class="nav-link group"
+              :class="{ 
+                'is-active': item.path === route.path,
+                'nav-active': item.path === '/archive' && isArchivePage
+              }"
+            >
+              <div class="nav-link-bg absolute inset-0 rounded-lg transition-colors duration-200"></div>
+              <div class="nav-link-content">
+                <i :class="[item.icon, 'nav-icon']"></i>
+                <span>{{ item.name }}</span>
+                <i v-if="item.children" 
+                   class="ri-arrow-down-s-line transition-transform duration-200"
+                   :class="{ 'rotate-180': showArchiveMenu && currentHoverPath === item.path }">
+                </i>
+              </div>
+            </RouterLink>
+
+            <!-- 归档下拉菜单 -->
+            <div v-if="item.children && showArchiveMenu && currentHoverPath === item.path"
+                 class="absolute top-full left-0 mt-1 w-40 py-1
+                        bg-white/90 backdrop-blur-sm
+                        border border-gray-100/80 rounded-lg shadow-lg
+                        overflow-hidden z-50"
+                 @mouseenter="showMenu(item.path)"
+                 @mouseleave="hideMenu()"
+            >
+              <RouterLink
+                v-for="child in item.children"
+                :key="child.path"
+                :to="{ path: child.path, query: { tab: child.param } }"
+                class="menu-item group"
+                :class="{ 'menu-active': currentArchiveTab === child.param }"
+              >
+                <div class="menu-item-content">
+                  <i :class="child.icon"></i>
+                  <span>{{ child.name }}</span>
+                </div>
+              </RouterLink>
+            </div>
+          </div>
+
+          <!-- 搜索按钮 -->
+          <button class="nav-link group">
+            <div class="nav-link-bg absolute inset-0 rounded-lg transition-colors duration-200"></div>
+            <div class="nav-link-content">
+              <i class="ri-search-line nav-icon"></i>
+            </div>
+          </button>
+
+          <!-- 主题切换按钮 -->
+          <button class="nav-link group">
+            <div class="nav-link-bg absolute inset-0 rounded-lg transition-colors duration-200"></div>
+            <div class="nav-link-content">
+              <i class="ri-sun-line nav-icon"></i>
+            </div>
+          </button>
         </div>
       </div>
     </div>
@@ -123,45 +179,43 @@ onUnmounted(() => {
 <style scoped>
 /* Logo渐变文字 */
 .bg-gradient-text {
-  background: linear-gradient(120deg, 
-    rgb(209 213 219), /* 浅灰色开始 */
-    rgb(156 163 175)  /* 深灰色结束 */
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  @apply text-gray-800;
+  transition: color 0.2s ease;
 }
 
-/* Logo悬停效果 */
 .group:hover .bg-gradient-text {
-  background: linear-gradient(120deg, 
-    rgb(96 165 250), /* 浅蓝色开始 */
-    rgb(59 130 246)  /* 深蓝色结束 */
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  @apply text-blue-500;
 }
 
 /* 导航链接样式 */
 .nav-link {
-  @apply flex items-center space-x-2 px-3 py-2 rounded-lg relative text-gray-300 overflow-hidden;
+  @apply flex items-center space-x-2 px-3 py-2 rounded-lg relative text-gray-600 overflow-hidden;
 }
 
 .nav-link-content {
   @apply flex items-center space-x-2 relative z-10;
 }
 
-.group:hover .nav-link-content {
-  @apply text-white;
+.nav-link:hover {
+  @apply text-blue-500;
 }
 
-/* 图标动画 */
+.nav-link:hover .nav-link-bg {
+  @apply bg-blue-50;
+}
+
+/* 图标样式 */
 .nav-icon {
-  @apply text-current;
+  @apply text-current transition-colors;
 }
 
 /* 激活状态 */
 .is-active {
-  @apply text-white;
+  @apply text-blue-500;
+}
+
+.is-active .nav-link-bg {
+  @apply bg-blue-50;
 }
 
 .is-active::after {
@@ -177,47 +231,20 @@ onUnmounted(() => {
 
 /* 下拉菜单项样式 */
 .menu-item {
-  @apply flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-300 hover:text-white;
+  @apply flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-600 hover:text-blue-500 relative;
+}
+
+.menu-item:hover {
+  @apply bg-blue-50;
 }
 
 .menu-item-content {
   @apply flex items-center space-x-3 relative z-10;
 }
 
-/* 激活状态样式 */
-.menu-item.is-active {
-  @apply text-blue-400 bg-blue-500/10;
-}
-
-.menu-item.is-active::before {
-  content: '';
-  @apply absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1/2 bg-blue-500 rounded-r-full;
-}
-
-/* 归档按钮激活状态 */
-.nav-link.is-active {
-  @apply text-blue-400;
-}
-
-.nav-link.is-active .nav-link-bg {
-  @apply bg-blue-500/10;
-}
-
-.nav-active {
-  @apply text-blue-400;
-}
-
-.nav-active .nav-link-content {
-  @apply text-blue-400;
-}
-
-.nav-active .nav-link-bg {
-  @apply bg-blue-500/10;
-}
-
-/* 下拉菜单项激活状态 */
+/* 菜单项激活状态 */
 .menu-active {
-  @apply text-blue-400 bg-blue-500/10;
+  @apply text-blue-500 bg-blue-50;
 }
 
 .menu-active::before {
@@ -229,15 +256,15 @@ onUnmounted(() => {
   @apply h-3/4;
 }
 
-/* 保留箭头旋转动画但移除过渡 */
+/* 箭头旋转动画 */
 .ri-arrow-down-s-line {
-  transform: rotate(0deg);
+  @apply transition-transform duration-200;
 }
 
-.group:hover .ri-arrow-down-s-line {
+.rotate-180 {
   transform: rotate(180deg);
 }
-</style> 
+</style>
 
 <script lang="ts">
 export default {

@@ -1,108 +1,74 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { Article } from '@/shared/types/article'
+import { theme } from '@/shared/config/theme'
 
 interface Props {
   articles: Article[]
 }
 
 const props = defineProps<Props>()
-const selectedTag = ref<string | null>(null)
+const selectedTag = ref('')
 
-const tagGroupedArticles = computed(() => {
-  const groups = new Map<string, Article[]>()
-  
+// 获取所有标签
+const tags = computed(() => {
+  const tagSet = new Set<string>()
   props.articles.forEach(article => {
-    article.tags.forEach(tag => {
-      if (!groups.has(tag)) {
-        groups.set(tag, [])
-      }
-      groups.get(tag)?.push(article)
-    })
+    article.tags.forEach(tag => tagSet.add(tag))
   })
-  
-  return Array.from(groups.entries())
-    .sort((a, b) => b[1].length - a[1].length)
+  return Array.from(tagSet)
 })
 
+// 按选中的标签筛选文章
 const filteredArticles = computed(() => {
   if (!selectedTag.value) return []
-  return tagGroupedArticles.value.find(([tag]) => tag === selectedTag.value)?.[1] || []
+  return props.articles
+    .filter(article => article.tags.includes(selectedTag.value))
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 })
+
+const selectTag = (tag: string) => {
+  selectedTag.value = tag === selectedTag.value ? '' : tag
+}
 </script>
 
 <template>
-  <div class="space-y-8">
-    <!-- 标签云 -->
-    <div class="card-border p-6 rounded-lg">
-      <div class="flex flex-wrap gap-3">
-        <button
-          v-for="[tag, articles] in tagGroupedArticles"
-          :key="tag"
-          @click="selectedTag = selectedTag === tag ? null : tag"
-          class="group inline-flex items-center px-3 py-1.5 rounded-full transition-colors"
-          :class="[
-            selectedTag === tag 
-              ? 'bg-blue-500/20 text-blue-400' 
-              : 'bg-white/10 text-gray-300 hover:bg-white/20'
-          ]"
-        >
-          <span class="text-blue-400 text-sm mr-2">#</span>
-          <span class="text-sm">{{ tag }}</span>
-          <span 
-            class="ml-2 px-1.5 py-0.5 text-xs rounded-full" 
-            :class="[
-              selectedTag === tag 
-                ? 'bg-blue-500/20 text-blue-400' 
-                : 'bg-white/10 text-gray-400'
-            ]"
-          >
-            {{ articles.length }}
-          </span>
-        </button>
-      </div>
-    </div>
-
-    <!-- 分割线 -->
-    <div v-if="selectedTag" class="flex items-center gap-4">
-      <span class="text-blue-400 text-lg">#{{ selectedTag }}</span>
-      <div class="h-px flex-grow bg-white/10"></div>
+  <div :class="theme.archive.tags.wrapper">
+    <!-- 标签选择器 -->
+    <div :class="theme.archive.tags.header.wrapper">
+      <button
+        v-for="tag in tags"
+        :key="tag"
+        :class="[
+          theme.archive.tags.header.tag,
+          selectedTag === tag ? theme.archive.tags.header.active : ''
+        ]"
+        @click="selectTag(tag)"
+      >
+        {{ tag }}
+      </button>
     </div>
 
     <!-- 文章列表 -->
-    <div v-if="selectedTag" class="space-y-4 animate-fadeIn">
-      <div 
+    <div v-if="selectedTag" :class="theme.archive.tags.content.wrapper">
+      <RouterLink
         v-for="article in filteredArticles"
         :key="article.id"
-        class="card-border p-4 rounded-lg hover:bg-white/5 transition-all group"
+        :to="`/article/${article.id}`"
+        class="group"
+        :class="theme.archive.tags.content.article.wrapper"
       >
-        <div class="flex items-center gap-6">
-          <span class="text-gray-500 text-sm w-24">{{ article.date }}</span>
-          <a 
-            href="#" 
-            class="text-gray-300 group-hover:text-blue-400 transition-colors flex-1"
-          >
-            {{ article.title }}
-          </a>
+        <h3 :class="theme.archive.tags.content.article.title">
+          {{ article.title }}
+        </h3>
+        <div :class="theme.archive.tags.content.article.meta">
+          <time :datetime="article.createdAt">{{ article.createdAt }}</time>
+          <span class="flex items-center">
+            <i class="ri-eye-line mr-1.5 text-blue-400"></i>
+            {{ article.views }} 阅读
+          </span>
         </div>
-      </div>
+      </RouterLink>
     </div>
   </div>
-</template>
-
-<style scoped>
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-</style> 
+</template> 

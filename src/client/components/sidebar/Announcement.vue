@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { theme } from '@/shared/config/theme'
+
 const announcements = {
   title: 'Announcement',
   subtitle: '公告 📢',
@@ -31,24 +33,22 @@ const announcements = {
 </script>
 
 <template>
-  <div class="card-border rounded-lg overflow-hidden">
+  <div :class="theme.announcement.card.base">
     <!-- 标题区域 -->
     <div class="relative">
-      <div class="absolute inset-0 bg-gradient-to-br from-slate-800/90 to-slate-900/90"></div>
-      <div class="relative p-6">
-        <div class="flex items-center justify-between mb-2">
-          <h2 class="text-xl font-bold text-white flex items-center space-x-2">
-            <span class="text-blue-400">📢</span>
-            <span>{{ announcements.title }}</span>
-          </h2>
-        </div>
-        <p class="text-gray-300">{{ announcements.subtitle }}</p>
+      <div :class="theme.announcement.card.header.gradient"></div>
+      <div :class="theme.announcement.card.header.wrapper">
+        <h2 :class="theme.announcement.card.header.title">
+          <span :class="theme.announcement.card.header.icon">📢</span>
+          <span>{{ announcements.title }}</span>
+        </h2>
+        <p class="text-gray-600">{{ announcements.subtitle }}</p>
       </div>
     </div>
 
-    <!-- 欢迎语 -->
-    <div class="p-6 border-t border-white/10 bg-black/30">
-      <p class="text-lg text-white mb-4">{{ announcements.welcome }}</p>
+    <!-- 内容区域 -->
+    <div :class="theme.announcement.card.content.wrapper">
+      <p class="text-lg text-gray-800 mb-4">{{ announcements.welcome }}</p>
       
       <!-- 功能列表 -->
       <div 
@@ -56,28 +56,28 @@ const announcements = {
         :key="section.title"
         class="mb-6"
       >
-        <h3 class="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
-          <span class="text-blue-400">✨</span>
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center space-x-2">
+          <span class="text-blue-500">✨</span>
           <span>{{ section.title }}</span>
         </h3>
         <ul class="space-y-4">
           <li 
             v-for="item in section.items"
             :key="item.label"
-            class="flex items-start space-x-3"
+            :class="theme.announcement.card.content.item.base"
           >
             <div class="flex-shrink-0 w-1 h-1 rounded-full bg-blue-400/60 mt-2"></div>
             <div>
-              <h4 class="text-white font-medium hover:text-blue-400 transition-colors">{{ item.label }}</h4>
-              <p class="text-sm text-gray-400">{{ item.description }}</p>
+              <h4 class="text-gray-800 font-medium hover:text-blue-500 transition-colors">{{ item.label }}</h4>
+              <p class="text-sm text-gray-500">{{ item.description }}</p>
             </div>
           </li>
         </ul>
       </div>
 
       <!-- 联系方式 -->
-      <div class="mt-6 pt-6 border-t border-white/10">
-        <h3 class="text-lg font-semibold text-white mb-4">{{ announcements.contact.title }}</h3>
+      <div class="mt-6 pt-6 border-t border-gray-200/80">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ announcements.contact.title }}</h3>
         <div class="flex space-x-4">
           <a 
             v-for="item in [
@@ -90,8 +90,8 @@ const announcements = {
             class="group"
           >
             <div 
-              class="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-400/20
-                     flex items-center justify-center hover:bg-blue-500/20
+              class="w-10 h-10 rounded-full bg-blue-50 border border-blue-200/50
+                     flex items-center justify-center hover:bg-blue-100
                      transform transition-all duration-300 
                      hover:scale-110 hover:rotate-12"
             >

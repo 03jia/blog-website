@@ -47,17 +47,18 @@ onMounted(() => {
 </script>
 
 <template>
-  <article>
+  <article class="article">
     <!-- 文章头部信息 -->
     <header 
-      class="bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-lg 
-             rounded-lg p-8 mb-8 border border-white/10
-             hover:border-blue-500/30 transition-all duration-300"
+      class="bg-white/95 rounded-lg p-8 mb-8 
+             border border-gray-100/80
+             hover:border-blue-200 transition-all duration-300
+             shadow-sm"
     >
-      <h1 class="text-3xl font-bold text-white mb-4">
+      <h1 class="text-3xl font-bold text-gray-800 mb-4">
         {{ article.title }}
       </h1>
-      <div class="flex items-center justify-between text-gray-400">
+      <div class="flex items-center justify-between text-gray-500">
         <div class="flex items-center space-x-4">
           <time :datetime="article.date">{{ article.date }}</time>
           <span>{{ article.readTime }}</span>
@@ -66,7 +67,7 @@ onMounted(() => {
           <span 
             v-for="tag in article.tags" 
             :key="tag"
-            class="px-2 py-1 text-sm rounded-full bg-blue-500/20 text-blue-400"
+            class="px-2 py-1 text-sm rounded-full bg-blue-50 text-blue-500"
           >
             {{ tag }}
           </span>
@@ -76,10 +77,12 @@ onMounted(() => {
 
     <!-- 文章内容 -->
     <div 
-      class="prose prose-invert prose-lg max-w-none 
-             bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-lg 
-             rounded-lg p-8 article-content border border-white/10
-             hover:border-blue-500/30 transition-all duration-300"
+      class="prose max-w-none 
+             bg-white/95
+             rounded-lg p-8 article-content 
+             border border-gray-100/80
+             hover:border-blue-200 transition-all duration-300
+             shadow-sm"
       v-html="content"
     ></div>
   </article>
@@ -88,33 +91,33 @@ onMounted(() => {
 <style scoped>
 /* 基础文本样式 */
 :deep(.prose) {
-  @apply text-gray-300 leading-relaxed max-w-none;
+  @apply text-gray-600 leading-relaxed max-w-none;
   font-size: 16px;
   line-height: 1.75;
 }
 
 /* 标题样式 */
 :deep(.prose h1) {
-  @apply text-2xl font-bold text-white mt-8 mb-6 pb-2 border-b border-white/10;
+  @apply text-2xl font-bold text-gray-800 mt-8 mb-6 pb-2 border-b border-gray-200/80;
 }
 
 :deep(.prose h2) {
-  @apply text-xl font-bold text-white mt-6 mb-4 pb-2 border-b border-white/10;
+  @apply text-xl font-bold text-gray-800 mt-6 mb-4 pb-2 border-b border-gray-200/80;
 }
 
 :deep(.prose h3) {
-  @apply text-lg font-bold text-white mt-4 mb-3;
+  @apply text-lg font-bold text-gray-800 mt-4 mb-3;
 }
 
 :deep(.prose h4),
 :deep(.prose h5),
 :deep(.prose h6) {
-  @apply font-bold text-white mt-3 mb-2;
+  @apply font-bold text-gray-800 mt-3 mb-2;
 }
 
 /* 段落样式 */
 :deep(.prose p) {
-  @apply my-4 leading-7;
+  @apply my-4 leading-7 text-gray-600;
 }
 
 /* 列表样式 */
@@ -125,169 +128,97 @@ onMounted(() => {
 
 :deep(.prose ul) {
   @apply list-disc;
-  li::marker {
-    @apply text-blue-400;
-  }
+}
+
+:deep(.prose ul li::marker) {
+  @apply text-blue-500;
 }
 
 :deep(.prose ol) {
   @apply list-decimal;
-  li::marker {
-    @apply text-purple-400;
-  }
 }
 
-/* 加粗文本样式优化 */
+:deep(.prose ol li::marker) {
+  @apply text-blue-500;
+}
+
+/* 加粗文本样式 */
 :deep(.prose strong) {
-  @apply text-white font-bold;
-  font-weight: 600;
-  color: #e2e8f0;
+  @apply font-bold text-gray-900;
+  @apply bg-yellow-50/50 px-1 rounded;
+  @apply border-b-2 border-yellow-200/50;
 }
 
 /* 代码块样式优化 */
 :deep(.prose pre) {
-  @apply my-6 p-4 rounded-lg bg-gray-900/90 relative;
-  
-  /* 复制按钮 */
-  .copy-button {
-    @apply absolute top-2 right-2 p-1 rounded;
-    @apply bg-gray-800/50 text-gray-400;
-    @apply opacity-0;
-    @apply hover:bg-gray-700/50 hover:text-white;
-    font-size: 0;  /* 隐藏可能的文本内容 */
-    line-height: 1;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  &:hover .copy-button {
-    @apply opacity-100;
-  }
-
-  /* 移除所有默认边框和背景 */
-  &::before,
-  &::after {
-    display: none !important;
-  }
+  @apply my-6 p-4 rounded-lg bg-gray-50 relative;
 }
 
 /* 行内代码样式优化 */
 :deep(.prose :not(pre) > code) {
   @apply px-1.5 py-0.5 rounded text-sm font-mono;
-  @apply bg-gray-800/80 text-pink-400 whitespace-nowrap;
-  font-family: 'Fira Code', Consolas, Monaco, 'Andale Mono', monospace;
-  &::before,
-  &::after {
-    display: none !important;
-    content: none !important;
-  }
+  @apply bg-blue-50 text-blue-600;
+  @apply border border-blue-100;
 }
 
-/* 全局移除代码元素的默认样式 */
-:deep(.prose) {
-  *:not(pre) > code::before,
-  *:not(pre) > code::after,
-  pre::before,
-  pre::after {
-    content: none !important;
-  }
-}
-
-/* 代码高亮颜色 */
-:deep(.prose .hljs) {
-  @apply text-gray-300;
-
-  &-comment,
-  &-quote {
-    @apply text-gray-500 italic;
-  }
-
-  &-keyword,
-  &-selector-tag {
-    @apply text-purple-400;
-  }
-
-  &-string,
-  &-number,
-  &-template-variable,
-  &-variable {
-    @apply text-green-400;
-  }
-
-  &-title,
-  &-section,
-  &-selector-id {
-    @apply text-blue-400;
-  }
-
-  &-type,
-  &-class {
-    @apply text-yellow-400;
-  }
-
-  &-function {
-    @apply text-blue-400;
-  }
-
-  &-symbol,
-  &-bullet {
-    @apply text-pink-400;
-  }
+/* 确保反引号正确显示 */
+:deep(.prose :not(pre) > code::before),
+:deep(.prose :not(pre) > code::after) {
+  content: '`';
+  @apply text-blue-400;
 }
 
 /* 引用块样式 */
 :deep(.prose blockquote) {
-  @apply my-6 pl-4 border-l-4 border-blue-500/50 bg-white/5 py-2 rounded-r;
-  p {
-    @apply text-gray-400 italic m-0;
-  }
+  @apply my-6 pl-4 border-l-4 border-blue-200 bg-blue-50/30 py-2 rounded-r;
+}
+
+:deep(.prose blockquote p) {
+  @apply text-gray-600 italic m-0;
 }
 
 /* 表格样式 */
 :deep(.prose table) {
   @apply w-full my-6 text-sm;
-  
-  th, td {
-    @apply px-4 py-2 border border-white/10;
-  }
-  
-  thead {
-    @apply bg-white/5;
-    th {
-      @apply font-bold text-white;
-    }
-  }
-  
-  tbody {
-    tr:nth-child(even) {
-      @apply bg-white/[0.02];
-    }
-  }
+}
+
+:deep(.prose table th),
+:deep(.prose table td) {
+  @apply px-4 py-2 border border-gray-200/80;
+}
+
+:deep(.prose table thead) {
+  @apply bg-gray-50;
+}
+
+:deep(.prose table thead th) {
+  @apply font-bold text-gray-800;
+}
+
+:deep(.prose table tbody tr:nth-child(even)) {
+  @apply bg-gray-50/50;
 }
 
 /* 图片样式 */
 :deep(.prose img) {
   @apply max-w-full rounded-lg my-6 mx-auto
-         border border-white/10 bg-white/5 p-1;
+         border border-gray-100/80 bg-white p-1;
 }
 
 /* 水平分割线 */
 :deep(.prose hr) {
-  @apply my-8 border-t-2 border-white/10;
+  @apply my-8 border-t border-gray-200/80;
 }
 
 /* 链接样式 */
 :deep(.prose a) {
-  @apply text-blue-400 hover:text-blue-300 
-         border-b border-blue-400/30 hover:border-blue-300
+  @apply text-blue-500 hover:text-blue-600 
+         border-b border-blue-200 hover:border-blue-300
          transition-colors duration-200;
 }
 
 /* 选中文本样式 */
 :deep(.prose ::selection) {
-  @apply bg-blue-500/30 text-white;
+  @apply bg-blue-100 text-blue-900;
 }
 </style> 
