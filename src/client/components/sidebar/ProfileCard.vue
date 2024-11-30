@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useArticleStore } from '@/client/stores/article'
-import avatar from '@/shared/assets/images/avatar.png'
+import avatar from '/assets/images/avatar.png'
 import { theme } from '@/shared/config/theme'
 
 const articleStore = useArticleStore()

@@ -32,7 +32,7 @@ onMounted(async () => {
         <!-- 图片区域 -->
         <div :class="theme.articleCard.image.wrapper">
           <img 
-            :src="`/src/shared/assets/images/test/test${(index % 5) + 1}.jpg`"
+            :src="`/assets/images/test/test${(index % 5) + 1}.jpg`"
             :alt="article.title"
             class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
             @error="handleImageError"

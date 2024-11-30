@@ -11,15 +11,15 @@ const props = defineProps<Props>()
 
 // 获取随机图片
 const getRandomImage = () => {
-  const index = Math.floor(Math.random() * 12) + 1 // 假设有12张图片
-  return `/src/shared/assets/images/covers/${index}.jpg`
+  const index = Math.floor(Math.random() * 12) + 1
+  return `/assets/images/covers/${index}.jpg`
 }
 
 const coverImage = ref(props.article.cover || getRandomImage())
 
 // 处理图片加载失败
 const handleImageError = () => {
-  coverImage.value = '/src/shared/assets/images/default-cover.jpg'
+  coverImage.value = '/assets/images/default-cover.jpg'
 }
 </script>
 

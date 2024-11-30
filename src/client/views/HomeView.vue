@@ -55,7 +55,7 @@ const startReading = () => {
             <!-- 头像容器 - 优化动画 -->
             <div class="absolute inset-[3px] rounded-full bg-gradient-to-r from-blue-600 to-purple-600 p-[2px] hover:scale-105 transition-transform duration-200">
               <img 
-                src="@/shared/assets/images/avatar.png" 
+                src="/assets/images/avatar.png" 
                 alt="Avatar"
                 class="w-full h-full rounded-full object-cover will-change-transform"
               />

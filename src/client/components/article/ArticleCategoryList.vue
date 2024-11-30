@@ -19,7 +19,7 @@ const filteredArticles = computed(() => {
       article => article.category === category.value
     ).map((article, index) => ({
       ...article,
-      cover: `/src/shared/assets/images/test/test${(index % 5) + 1}.jpg`
+      cover: `/assets/images/test/test${(index % 5) + 1}.jpg`
     }))
   }
   return articleStore.articles

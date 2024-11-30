@@ -6,16 +6,16 @@ export interface Article {
   category: string
   tags: string[]
   createdAt: string
-  updatedAt?: string
+  updatedAt: string
   views: number
   likes: number
   comments: number
-  status: 'draft' | 'published'
+  status: 'published' | 'draft'
   visible: boolean
-  recommended?: boolean
   filename: string
   path: string
-  sha?: string
+  sha: string
+  cover?: string
 }
 
 export interface ArticleMeta {

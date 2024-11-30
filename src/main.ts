@@ -14,11 +14,13 @@ app.use(router)
 const articleStore = useArticleStore()
 console.log('开始初始化文章存储...')
 
-// 尝试获取文章
-try {
-  await articleStore.fetchArticles()
-} catch (error) {
-  console.error('获取文章失败:', error)
-}
-
-app.mount('#app')
+// 使用立即执行的异步函数包装
+;(async () => {
+  try {
+    await articleStore.fetchArticles()
+    app.mount('#app')
+  } catch (error) {
+    console.error('获取文章失败:', error)
+    app.mount('#app') // 即使获取失败也挂载应用
+  }
+})()

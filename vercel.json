@@ -11,12 +11,32 @@
   ],
   "routes": [
     {
+      "src": "/assets/images/(.*)",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/assets/(.*)\\.js$",
+      "headers": {
+        "Content-Type": "application/javascript",
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/assets/(.*)\\.css$",
+      "headers": {
+        "Content-Type": "text/css",
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html"
     }
   ],
   "env": {
-    "VITE_GITEE_WEBHOOK_SECRET": "@gitee_webhook_secret",
+    "VITE_GITEE_WEBHOOK_SECRET": "yu-7mX2sQf8J9zjVpK3YgB2hK6uP",
     "VITE_GITEE_TOKEN": "@gitee_token"
   }
 } 
