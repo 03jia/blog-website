@@ -12,9 +12,17 @@ export interface GiteeFile {
 }
 
 export class GiteeService {
+  private static getToken(): string {
+    if (!ACCESS_TOKEN) {
+      throw new Error('Gitee access token not found in environment variables')
+    }
+    return ACCESS_TOKEN
+  }
+
   static async getDirectories(): Promise<string[]> {
+    const token = this.getToken()
     const response = await fetch(
-      `${GITEE_API_BASE}/repos/${REPO_OWNER}/${REPO_NAME}/contents/?access_token=${ACCESS_TOKEN}`
+      `${GITEE_API_BASE}/repos/${REPO_OWNER}/${REPO_NAME}/contents/?access_token=${token}`
     )
     
     if (!response.ok) {
@@ -28,8 +36,9 @@ export class GiteeService {
   }
 
   static async getFiles(path: string): Promise<GiteeFile[]> {
+    const token = this.getToken()
     const response = await fetch(
-      `${GITEE_API_BASE}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}?access_token=${ACCESS_TOKEN}`
+      `${GITEE_API_BASE}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}?access_token=${token}`
     )
 
     if (!response.ok) return []
@@ -39,8 +48,9 @@ export class GiteeService {
   }
 
   static async getFileContent(path: string): Promise<string | null> {
+    const token = this.getToken()
     const response = await fetch(
-      `${GITEE_API_BASE}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}?access_token=${ACCESS_TOKEN}`
+      `${GITEE_API_BASE}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}?access_token=${token}`
     )
 
     if (!response.ok) return null

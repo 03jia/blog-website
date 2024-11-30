@@ -3,6 +3,7 @@ import type { Article } from '@/shared/types/article'
 import { GiteeService } from '@/shared/services/gitee'
 import { decodeContent, parseArticleContent } from '@/shared/utils/article-parser'
 import { getArticleState, toggleArticleVisibility, toggleArticleRecommended } from '@/shared/utils/kv'
+import { LocalCache } from '@/client/utils/cache'
 
 export const useArticleStore = defineStore('article', {
   state: () => ({
@@ -38,6 +39,14 @@ export const useArticleStore = defineStore('article', {
 
     async fetchArticles() {
       try {
+        // 先检查缓存
+        const cachedArticles = LocalCache.get('articles')
+        if (cachedArticles) {
+          this.articles = cachedArticles
+          return
+        }
+
+        // 如果没有缓存，则从 Gitee 获取
         await this.fetchCategories()
         const articles: Article[] = []
 
@@ -62,14 +71,16 @@ export const useArticleStore = defineStore('article', {
               if (state) {
                 Object.assign(article, state)
               }
-
+              
               articles.push(article)
             } catch (error) {
-              console.error(`处理文件 ${file.path} 失败:`, error)
+              console.error(`解析文章失败: ${file.path}`, error)
             }
           }
         }
 
+        // 更新缓存
+        LocalCache.set('articles', articles)
         this.articles = articles
       } catch (error) {
         console.error('获取文章列表失败:', error)

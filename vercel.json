@@ -16,6 +16,7 @@
     }
   ],
   "env": {
+    "VITE_GITEE_WEBHOOK_SECRET": "@gitee_webhook_secret",
     "VITE_GITEE_TOKEN": "@gitee_token"
   }
 } 
