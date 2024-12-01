@@ -11,6 +11,10 @@
   ],
   "routes": [
     {
+      "src": "/admin.*",
+      "dest": "/index.html"
+    },
+    {
       "src": "/assets/images/(.*)",
       "headers": {
         "Cache-Control": "public, max-age=31536000, immutable"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import Navbar from '@/admin/components/layout/AdminNavBar.vue'
+import Navbar from '@/admin/components/layout/AdminNavbar.vue'
 import Sidebar from '@/admin/components/layout/AdminSidebar.vue'
 
 const collapsed = ref(true)
