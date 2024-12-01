@@ -19,19 +19,19 @@ export default async function handler(
 
   try {
     // 验证签名
-    const timestamp = req.query.timestamp as string
+    const queryTimestamp = req.query.timestamp as string
     const sign = req.query.sign as string
 
     if (!WEBHOOK_SECRET) {
       return res.status(401).json({ error: 'Webhook secret not found' })
     }
 
-    if (!timestamp || !sign) {
+    if (!queryTimestamp || !sign) {
       return res.status(401).json({ error: 'Invalid signature' })
     }
 
     // Gitee 的签名验证方式
-    const content = timestamp + '\n' + WEBHOOK_SECRET
+    const content = queryTimestamp + '\n' + WEBHOOK_SECRET
     const expectedSign = crypto
       .createHmac('sha256', WEBHOOK_SECRET)
       .update(content)
