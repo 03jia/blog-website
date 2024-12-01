@@ -4,7 +4,7 @@ import NavBar from '@/client/components/layout/ClientNavBar.vue'
 import ArticleList from '@/client/components/blog/ArticleList.vue'
 import Sidebar from '@/client/components/sidebar/Sidebar.vue'
 import { theme } from '@/shared/config/theme'
-import bgImage from '@/shared/assets/images/bg.jpg'
+const bgImage = '/assets/images/bg.jpg'
 
 const showContent = ref(false)
 

@@ -1,0 +1,1 @@
+{"version":3,"file":"articles-meta.js","sourceRoot":"","sources":["articles-meta.ts"],"names":[],"mappings":"AAEA,MAAM,CAAC,MAAM,YAAY,GAAkB;IACzC;QACE,EAAE,EAAE,CAAC;QACL,KAAK,EAAE,oBAAoB;QAC3B,WAAW,EAAE,+BAA+B;QAC5C,QAAQ,EAAE,MAAM;QAChB,IAAI,EAAE,CAAC,KAAK,EAAE,YAAY,EAAE,MAAM,CAAC;QACnC,SAAS,EAAE,YAAY;KACxB;IACD,cAAc;CACf,CAAA"}

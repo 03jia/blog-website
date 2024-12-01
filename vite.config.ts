@@ -24,8 +24,14 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    base: '/',
-    publicDir: 'public',
+    sourcemap: false,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true
+      }
+    },
     rollupOptions: {
       input: {
         main: fileURLToPath(new URL('./index.html', import.meta.url))
@@ -34,8 +40,17 @@ export default defineConfig({
         format: 'es',
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]'
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendor'
+          }
+          if (id.includes('markdown')) {
+            return 'markdown'
+          }
+        }
       }
-    }
+    },
+    chunkSizeWarningLimit: 1000,
   }
 })
