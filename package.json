@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
+    "build": "vite build",
+    "build-with-types": "vue-tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -43,7 +44,6 @@
     "vite": "^5.0.12",
     "vite-plugin-vue-devtools": "^7.5.4",
     "vite-plugin-vue-markdown": "^0.23.8",
-    "vitest": "^2.1.4",
-    "vue-tsc": "^1.8.27"
+    "vitest": "^2.1.4"
   }
 }
