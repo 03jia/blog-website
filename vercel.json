@@ -31,12 +31,16 @@
       }
     },
     {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html"
     }
   ],
   "env": {
     "VITE_GITEE_WEBHOOK_SECRET": "yu-7mX2sQf8J9zjVpK3YgB2hK6uP",
-    "VITE_GITEE_TOKEN": "@gitee_token"
+    "VITE_GITEE_TOKEN": "92bfe8e3a97a8d3ce644d3612ef856a8"
   }
 } 
