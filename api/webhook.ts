@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import crypto from 'crypto'
 
-const WEBHOOK_SECRET = process.env.GITEE_WEBHOOK_SECRET
+const WEBHOOK_SECRET = process.env.VITE_GITEE_WEBHOOK_SECRET
 
 export default async function handler(
   req: VercelRequest,
