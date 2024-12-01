@@ -5,6 +5,7 @@ import App from './App.vue'
 import router from './client/router'
 
 import './shared/assets/styles/global.css'
+import 'remixicon/fonts/remixicon.css'
 
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
