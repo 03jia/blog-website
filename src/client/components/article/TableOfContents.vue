@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { theme } from '@/shared/config/theme'
 import { 
   ListBulletIcon,
   ChevronRightIcon,
   BookOpenIcon,
   BoltIcon
 } from '@heroicons/vue/24/outline'
-import { theme } from '@/shared/config/theme'
 
 interface TocItem {
   id: string
@@ -19,13 +19,23 @@ const tocItems = ref<TocItem[]>([])
 const activeId = ref('')
 const progress = ref(0)
 let scrollTimer: number | null = null
+const tocContainer = ref<HTMLElement | null>(null)
 
 // 生成目录结构
 const generateToc = () => {
   const article = document.querySelector('.article-content')
-  if (!article) return
+  console.log('Found article element:', article)
 
-  const headings = article.querySelectorAll('.prose h1, .prose h2, .prose h3')
+  const headings = article?.querySelectorAll('.prose h1, .prose h2, .prose h3')
+  console.log('Found headings:', headings?.length)
+
+  if (!headings?.length) {
+    console.log('No headings found, trying without .prose selector')
+    const allHeadings = article?.querySelectorAll('h1, h2, h3')
+    console.log('Found headings without .prose:', allHeadings?.length)
+    return
+  }
+
   const items: TocItem[] = []
   const stack: TocItem[][] = [items]
   let prevLevel = 0
@@ -41,6 +51,7 @@ const generateToc = () => {
       level,
       children: []
     }
+    console.log('Processing heading:', item)
 
     // 如果是第一个标题，直接添加到根级别
     if (stack.length === 1 && items.length === 0) {
@@ -73,6 +84,7 @@ const generateToc = () => {
   })
 
   tocItems.value = items
+  console.log('Generated TOC items:', items)
 }
 
 // 滚动到指定标题
@@ -155,11 +167,46 @@ const updateActiveHeading = () => {
   })
 }
 
+// 滚动目录到激活的标题
+const scrollTocToActiveItem = () => {
+  if (!tocContainer.value) return
+  
+  const activeButton = tocContainer.value.querySelector(`button[data-id="${activeId.value}"]`)
+  if (activeButton) {
+    const containerRect = tocContainer.value.getBoundingClientRect()
+    const buttonRect = activeButton.getBoundingClientRect()
+    
+    // 检查按钮是否在可视区域内
+    const isInView = (
+      buttonRect.top >= containerRect.top &&
+      buttonRect.bottom <= containerRect.bottom
+    )
+    
+    if (!isInView) {
+      // 计算滚动位置，使按钮位于容器中间
+      const scrollTop = activeButton.offsetTop - (containerRect.height / 2) + (buttonRect.height / 2)
+      tocContainer.value.scrollTo({
+        top: scrollTop,
+        behavior: 'smooth'
+      })
+    }
+  }
+}
+
+// 监听激活标题的变化
+watch(() => activeId.value, () => {
+  scrollTocToActiveItem()
+})
+
 onMounted(() => {
-  generateToc()
-  window.addEventListener('scroll', updateActiveHeading, { passive: true })
-  // 初始化激活状态
-  updateActiveHeading()
+  // 等待内容渲染完成
+  nextTick(() => {
+    setTimeout(() => {
+      generateToc()
+      window.addEventListener('scroll', updateActiveHeading, { passive: true })
+      updateActiveHeading()
+    }, 100)
+  })
 })
 
 onUnmounted(() => {
@@ -214,7 +261,10 @@ onUnmounted(() => {
       </div>
 
       <!-- 目录内容 -->
-      <div class="p-4 space-y-1 overflow-y-auto max-h-[60vh]">
+      <div 
+        ref="tocContainer"
+        class="p-4 space-y-1 overflow-y-auto max-h-[60vh]"
+      >
         <template v-if="tocItems.length">
           <div 
             v-for="item in tocItems" 
@@ -222,6 +272,7 @@ onUnmounted(() => {
             class="w-full"
           >
             <button
+              :data-id="item.id"
               @click="scrollToHeading(item.id)"
               class="w-full text-left rounded px-2 py-1.5 flex items-center transition-all duration-300"
               :class="[
@@ -247,6 +298,7 @@ onUnmounted(() => {
                 class="w-full"
               >
                 <button
+                  :data-id="child.id"
                   @click="scrollToHeading(child.id)"
                   class="w-full text-left rounded px-2 py-1.5 flex items-center pl-8 transition-all duration-300"
                   :class="[
@@ -269,6 +321,7 @@ onUnmounted(() => {
                   <button
                     v-for="subChild in child.children"
                     :key="subChild.id"
+                    :data-id="subChild.id"
                     @click="scrollToHeading(subChild.id)"
                     class="w-full text-left rounded px-2 py-1.5 flex items-center pl-12 transition-all duration-300"
                     :class="[
@@ -291,7 +344,7 @@ onUnmounted(() => {
           </div>
         </template>
         <div v-else class="text-center text-gray-400">
-          暂无目录
+          暂无目录 ({{ tocItems.length }})
         </div>
       </div>
     </div>

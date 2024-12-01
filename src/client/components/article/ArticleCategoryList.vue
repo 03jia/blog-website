@@ -3,8 +3,8 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useArticleStore } from '@/client/stores/article'
 import { theme } from '@/shared/config/theme'
-import ArticleCard from '../blog/ArticleCard.vue'
-import NavBar from '../layout/NavBar.vue'
+import ArticleCard from '@/client/components/blog/ArticleCard.vue'
+import NavBar from '@/client/components/layout/ClientNavBar.vue'
 
 const route = useRoute()
 const articleStore = useArticleStore()
@@ -68,4 +68,10 @@ const filteredArticles = computed(() => {
       </div>
     </main>
   </div>
-</template> 
+</template>
+
+<script lang="ts">
+export default {
+  name: 'ArticleCategoryList'
+}
+</script> 

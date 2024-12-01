@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { resetScroll } from '@/client/utils/scroll'
 import { adminRoutes } from './admin'
 
 const router = createRouter({
@@ -15,9 +16,10 @@ const router = createRouter({
       component: () => import('@/client/views/CategoryView.vue')
     },
     {
-      path: '/article/:id',
-      name: 'article',
-      component: () => import('@/client/views/ArticleView.vue')
+      path: '/article/:title',
+      name: 'Article',
+      component: () => import('@/client/views/ArticleView.vue'),
+      props: true
     },
     {
       path: '/archive',
@@ -35,23 +37,38 @@ const router = createRouter({
       component: () => import('@/client/components/article/ArticleCategoryList.vue')
     },
     ...adminRoutes
-  ]
+  ],
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    }
+    
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: 'smooth',
+        top: 80
+      }
+    }
+    
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ 
+          top: 0,
+          behavior: 'instant',
+          left: 0
+        })
+      }, 0)
+    })
+  }
 })
 
 router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    const token = localStorage.getItem('admin-token')
-    if (!token) {
-      next({
-        path: '/admin/login',
-        query: { redirect: to.fullPath }
-      })
-    } else {
-      next()
-    }
-  } else {
-    next()
-  }
+  window.scrollTo({
+    top: 0,
+    behavior: 'instant'
+  })
+  next()
 })
 
 export default router

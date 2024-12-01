@@ -3,14 +3,21 @@ import { ref, computed, onMounted } from 'vue'
 import { useArticleStore } from '@/client/stores/article'
 import type { Article } from '@/shared/types/article'
 import { theme } from '@/shared/config/theme'
+import { IMAGE_PATHS } from '@/shared/config/assets'
 
 const articleStore = useArticleStore()
-const articles = computed(() => articleStore.visibleArticles)
+
+// 使用 computed 对文章进行排序
+const articles = computed(() => {
+  return [...articleStore.articles]
+    .filter(article => article.visible !== false)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+})
 
 // 处理图片加载失败
 const handleImageError = (e: Event) => {
   const img = e.target as HTMLImageElement
-  img.src = '/src/shared/assets/images/default-cover.jpg'
+  img.src = IMAGE_PATHS.defaultCover
 }
 
 onMounted(async () => {
@@ -25,14 +32,14 @@ onMounted(async () => {
     <RouterLink
       v-for="(article, index) in articles"
       :key="article.id"
-      :to="`/article/${article.id}`"
+      :to="`/article/${encodeURIComponent(article.title)}`"
       class="block group"
     >
       <article :class="[theme.card.base, theme.card.hover, 'cursor-pointer']">
         <!-- 图片区域 -->
         <div :class="theme.articleCard.image.wrapper">
           <img 
-            :src="`/assets/images/test/test${(index % 5) + 1}.jpg`"
+            :src="IMAGE_PATHS.testImages((index % 5) + 1)"
             :alt="article.title"
             class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
             @error="handleImageError"

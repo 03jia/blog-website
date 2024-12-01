@@ -1,25 +1,35 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import path from 'path'
+import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
+      '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
   server: {
-    middlewareMode: false,
+    port: 5173,
+    open: true,
     cors: true,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Content-Type': 'application/javascript'
+    hmr: {
+      overlay: true,
+    },
+    watch: {
+      usePolling: true,
+      interval: 100
     }
   },
   build: {
+    outDir: 'dist',
     assetsDir: 'assets',
+    base: '/',
+    publicDir: 'public',
     rollupOptions: {
+      input: {
+        main: fileURLToPath(new URL('./index.html', import.meta.url))
+      },
       output: {
         format: 'es',
         entryFileNames: 'assets/[name]-[hash].js',

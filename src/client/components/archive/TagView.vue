@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { Article } from '@/shared/types/article'
-import { theme } from '@/shared/config/theme'
+import { theme } from '@/client/config/theme'
 
 interface Props {
   articles: Article[]
@@ -54,7 +54,7 @@ const selectTag = (tag: string) => {
       <RouterLink
         v-for="article in filteredArticles"
         :key="article.id"
-        :to="`/article/${article.id}`"
+        :to="`/article/${encodeURIComponent(article.title)}`"
         class="group"
         :class="theme.archive.tags.content.article.wrapper"
       >

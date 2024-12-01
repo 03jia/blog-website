@@ -2,10 +2,10 @@
 import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useArticleStore } from "@/client/stores/article";
-import NavBar from "../components/layout/NavBar.vue";
-import TimelineView from "../components/archive/TimelineView.vue";
-import CategoryView from "../components/archive/CategoryView.vue";
-import TagView from "../components/archive/TagView.vue";
+import NavBar from "@/client/components/layout/ClientNavBar.vue";
+import TimelineView from "@/client/components/archive/TimelineView.vue";
+import CategoryView from "@/client/components/archive/CategoryView.vue";
+import TagView from "@/client/components/archive/TagView.vue";
 import { theme } from '@/shared/config/theme'
 
 const route = useRoute();
@@ -36,66 +36,30 @@ const switchTab = (tab: string) => {
     <main :class="theme.archive.content.wrapper">
       <div :class="theme.archive.content.container">
         <!-- 标题 -->
-        <h1 class="text-3xl font-bold mb-8 bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">
-          归档
-        </h1>
-
-        <!-- 标签页切换 -->
-        <div :class="theme.archive.tabs.wrapper">
-          <button
-            v-for="tab in ['time', 'category', 'tag']"
-            :key="tab"
-            @click="switchTab(tab)"
-            :class="[
-              theme.archive.tabs.tab.base,
-              activeTab === tab 
-                ? theme.archive.tabs.tab.active 
-                : theme.archive.tabs.tab.inactive
-            ]"
-          >
-            <!-- 背景效果 -->
-            <div
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-800">文章归档</h1>
+          <div class="mt-4 flex space-x-4">
+            <button
+              v-for="tab in ['time', 'category', 'tag']"
+              :key="tab"
               :class="[
-                theme.archive.tabs.tab.background.base,
-                activeTab === tab 
-                  ? theme.archive.tabs.tab.background.active
-                  : theme.archive.tabs.tab.background.inactive
+                'px-4 py-2 rounded-full text-sm transition-colors',
+                activeTab === tab
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-white/90 text-gray-600 hover:bg-blue-50'
               ]"
-            ></div>
-
-            <!-- 内容 -->
-            <span :class="theme.archive.tabs.tab.content.wrapper">
-              <i
-                :class="[
-                  theme.archive.tabs.tab.content.icon,
-                  tab === 'time'
-                    ? 'ri-history-line'
-                    : tab === 'category'
-                    ? 'ri-folder-2-line'
-                    : 'ri-price-tag-3-line'
-                ]"
-              ></i>
-              <span>{{ tab === "time" ? "时间线" : tab === "category" ? "分类" : "标签" }}</span>
-            </span>
-
-            <!-- 底部指示器 -->
-            <div
-              :class="theme.archive.tabs.tab.indicator"
-              :style="{ opacity: activeTab === tab ? 1 : 0 }"
-            ></div>
-          </button>
+              @click="switchTab(tab)"
+            >
+              {{ tab === 'time' ? '时间线' : tab === 'category' ? '分类' : '标签' }}
+            </button>
+          </div>
         </div>
 
-        <!-- 内容视图 -->
-        <TimelineView
-          v-if="activeTab === 'time'"
+        <!-- 内容区域 -->
+        <component
+          :is="activeTab === 'time' ? TimelineView : activeTab === 'category' ? CategoryView : TagView"
           :articles="articleStore.articles"
         />
-        <CategoryView
-          v-else-if="activeTab === 'category'"
-          :articles="articleStore.articles"
-        />
-        <TagView v-else :articles="articleStore.articles" />
       </div>
     </main>
   </div>

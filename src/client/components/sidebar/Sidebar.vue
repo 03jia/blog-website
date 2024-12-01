@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import ProfileCard from './ProfileCard.vue'
-import Announcement from './Announcement.vue'
-import TagCloud from './TagCloud.vue'
-import CategoryList from './CategoryList.vue'
+import { theme } from '@/shared/config/theme'
+import ProfileCard from '@/client/components/sidebar/ProfileCard.vue'
+import CategoryList from '@/client/components/sidebar/CategoryList.vue'
+import TagCloud from '@/client/components/sidebar/TagCloud.vue'
+import Announcement from '@/client/components/sidebar/Announcement.vue'
 </script>
 
 <template>

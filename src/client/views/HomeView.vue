@@ -1,38 +1,27 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import NavBar from '../components/layout/NavBar.vue'
-import ArticleList from '../components/blog/ArticleList.vue'
-import Sidebar from '../components/sidebar/Sidebar.vue'
+import { ref, nextTick } from 'vue'
+import NavBar from '@/client/components/layout/ClientNavBar.vue'
+import ArticleList from '@/client/components/blog/ArticleList.vue'
+import Sidebar from '@/client/components/sidebar/Sidebar.vue'
+import { theme } from '@/shared/config/theme'
 import bgImage from '@/shared/assets/images/bg.jpg'
 
 const showContent = ref(false)
 
 const startReading = () => {
-  const contentElement = document.querySelector('#content')
-  if (contentElement) {
-    // 使用更平滑的滚动效果
-    contentElement.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-      inline: 'nearest'
-    })
-    
-    // 添加滚动补间动画
-    const scrollOptions = {
-      top: contentElement.offsetTop,
-      left: 0,
-      behavior: 'smooth'
+  // 先显示内容
+  showContent.value = true
+
+  // 使用 nextTick 等待 DOM 更新后再滚动
+  nextTick(() => {
+    const contentElement = document.querySelector('#content')
+    if (contentElement) {
+      contentElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      })
     }
-    
-    window.scrollTo(scrollOptions)
-    
-    // 添加内容淡入效果
-    contentElement.style.opacity = '0'
-    setTimeout(() => {
-      contentElement.style.opacity = '1'
-      contentElement.style.transition = 'opacity 0.3s ease-out'
-    }, 300)
-  }
+  })
 }
 </script>
 
@@ -134,6 +123,7 @@ const startReading = () => {
     <section 
       id="content"
       class="relative z-10 bg-transparent"
+      v-show="showContent"
     >
       <main class="max-w-7xl mx-auto px-4 py-16">
         <div class="flex flex-col lg:flex-row justify-center gap-8">
@@ -207,14 +197,19 @@ const startReading = () => {
 }
 
 /* 优化滚动效果 */
-html {
+/* html {
   scroll-behavior: smooth;
   scroll-padding-top: 2rem;
-}
+} */
 
 /* 内容区域的过渡效果 */
 #content {
+  opacity: 0;
   transition: opacity 0.3s ease-out;
+}
+
+#content:not([hidden]) {
+  opacity: 1;
 }
 
 /* 优化卡片动画 */

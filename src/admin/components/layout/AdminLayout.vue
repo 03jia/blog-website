@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import Navbar from './Navbar.vue'
-import Sidebar from './Sidebar.vue'
+import Navbar from '@/admin/components/layout/AdminNavBar.vue'
+import Sidebar from '@/admin/components/layout/AdminSidebar.vue'
 
 const collapsed = ref(true)
 </script>
@@ -57,4 +57,10 @@ const collapsed = ref(true)
 .dark .overflow-y-auto::-webkit-scrollbar-thumb {
   background-color: #4a5568;
 }
-</style> 
+</style>
+
+<script lang="ts">
+export default {
+  name: 'AdminLayout'
+}
+</script> 

@@ -2,8 +2,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useArticleStore } from '@/client/stores/article'
-import NavBar from '../components/layout/NavBar.vue'
-import ArticleCard from '../components/blog/ArticleCard.vue'
+import NavBar from '@/client/components/layout/ClientNavBar.vue'
+import ArticleCard from '@/client/components/blog/ArticleCard.vue'
 
 const route = useRoute()
 const articleStore = useArticleStore()
