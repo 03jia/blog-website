@@ -41,16 +41,24 @@ export default defineConfig({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
+        preserveModules: false,
+        generatedCode: {
+          constBindings: true
+        },
         manualChunks(id) {
           if (id.includes('node_modules')) {
+            if (id.includes('vue')) {
+              return 'vue'
+            }
+            if (id.includes('@vue')) {
+              return 'vue-libs'
+            }
             return 'vendor'
-          }
-          if (id.includes('markdown')) {
-            return 'markdown'
           }
         }
       }
     },
+    emptyOutDir: true,
     chunkSizeWarningLimit: 1000,
   }
 })
