@@ -15,6 +15,11 @@
       "dest": "/index.html"
     },
     {
+      "src": "/api/webhook",
+      "methods": ["POST", "GET"],
+      "dest": "/api/webhook.js"
+    },
+    {
       "src": "/assets/images/(.*)",
       "headers": {
         "Cache-Control": "public, max-age=31536000, immutable"

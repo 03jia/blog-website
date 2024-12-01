@@ -19,15 +19,25 @@ export default async function handler(
 
   try {
     // 验证签名
-    const signature = req.headers['x-gitee-token']
-    if (!signature || !WEBHOOK_SECRET) {
+    const timestamp = req.query.timestamp as string
+    const sign = req.query.sign as string
+
+    if (!WEBHOOK_SECRET) {
+      return res.status(401).json({ error: 'Webhook secret not found' })
+    }
+
+    if (!timestamp || !sign) {
       return res.status(401).json({ error: 'Invalid signature' })
     }
 
-    const hmac = crypto.createHmac('sha256', WEBHOOK_SECRET)
-    const digest = hmac.update(JSON.stringify(req.body)).digest('hex')
-    
-    if (signature !== digest) {
+    // Gitee 的签名验证方式
+    const content = timestamp + '\n' + WEBHOOK_SECRET
+    const expectedSign = crypto
+      .createHmac('sha256', WEBHOOK_SECRET)
+      .update(content)
+      .digest('base64')
+
+    if (sign !== expectedSign) {
       return res.status(401).json({ error: 'Invalid signature' })
     }
 
@@ -39,10 +49,12 @@ export default async function handler(
 
     // 存储最后一次推送的时间戳
     const timestamp = Date.now()
+    global.lastPushTimestamp = timestamp
     
     return res.status(200).json({ 
       success: true,
-      timestamp 
+      timestamp,
+      message: 'Webhook processed successfully'
     })
   } catch (error) {
     console.error('Webhook 处理错误:', error)
